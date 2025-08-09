@@ -3,7 +3,11 @@ project(Nomi1)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Nomi1 main.cpp)
+add_executable(Nomi1 main.cpp
+        ../src/iconnection.h
+        ../src/connection.cpp
+        ../src/connection.h
+)
 find_package(Boost 1.74.0 REQUIRED)
 if (Boost_FOUND)
     target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
