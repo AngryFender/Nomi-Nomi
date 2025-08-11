@@ -7,6 +7,9 @@ add_executable(Nomi1 main.cpp
         ../src/iconnection.h
         ../src/connection.cpp
         ../src/connection.h
+        ../src/iacceptor.h
+        ../src/acceptor.cpp
+        ../src/acceptor.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 if (Boost_FOUND)
