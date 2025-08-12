@@ -9,12 +9,12 @@ public:
         _acceptor(_io_context, tcp::endpoint(tcp::v4(), port))
     {}
     ~Acceptor() override = default;
-    void setHandler(std::function<void(std::shared_ptr<Iconnection>)> handler) override;
+    void setHandler(std::function<void(std::shared_ptr<IConnection>)> handler) override;
     void open() override;
 private:
     boost::asio::io_context& _io_context;
     tcp::acceptor _acceptor;
-    std::function<void(std::shared_ptr<Iconnection>)> _accept_handler;
+    std::function<void(std::shared_ptr<IConnection>)> _accept_handler;
 };
 
 

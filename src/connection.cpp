@@ -1,5 +1,10 @@
 #include "connection.h"
 
+tcp::socket& Connection::get_socket()
+{
+    return _socket;
+}
+
 void Connection::set_receive_callback(std::function<void(std::vector<char>&)> callback)
 {
     _receive_callback = callback;

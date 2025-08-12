@@ -6,13 +6,14 @@
 #include <boost/circular_buffer.hpp>
 
 
-class Connection : public Iconnection, public std::enable_shared_from_this<Connection> {
+class Connection : public IConnection, public std::enable_shared_from_this<Connection> {
 public:
     explicit Connection(boost::asio::io_context& context): _socket(context), _write_in_progress(false)
     {
 
     }
     ~Connection() override = default;
+    tcp::socket& get_socket() override;
     void set_receive_callback(std::function <void(std::vector<char>&)> callback) override;
     void set_send_callback(std::function <void(const boost::system::error_code&)> callback) override;
     void open() override;
