@@ -17,7 +17,28 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 
 void Connection::open()
 {
+    auto self = shared_from_this();
+    _socket.async_read_some(boost::asio::buffer(_temp_data), [self](const boost::system::error_code& err, std::size_t size)
+    {
+        if(err)
+        {
+            //handle error
+            return;
+        }
 
+        self->_temp_data.resize(size);
+
+        //implement framing layer
+        //add to persistent buffer
+        for(const char& item: self->_temp_data)
+        {
+            self->_internal_buffer.push_back(item);
+        }
+
+        //try to parse the message
+
+        self->open();
+    });
 }
 
 void Connection::async_send(const std::vector<char>& packet)
