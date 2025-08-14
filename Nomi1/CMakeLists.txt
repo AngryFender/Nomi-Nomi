@@ -10,6 +10,9 @@ add_executable(Nomi1 main.cpp
         ../src/iacceptor.h
         ../src/acceptor.cpp
         ../src/acceptor.h
+        ../src/ireader.h
+        ../src/nodereader.cpp
+        ../src/nodereader.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 if (Boost_FOUND)
