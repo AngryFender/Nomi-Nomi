@@ -13,6 +13,8 @@ add_executable(Nomi1 main.cpp
         ../src/ireader.h
         ../src/nodereader.cpp
         ../src/nodereader.h
+        ../src/requestreader.cpp
+        ../src/requestreader.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 if (Boost_FOUND)
