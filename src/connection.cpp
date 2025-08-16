@@ -36,6 +36,11 @@ void Connection::open()
         }
 
         //try to parse the message
+        if(self->_reader->read_packets(self->_internal_buffer, self->_packet_data))
+        {
+            self->_receive_callback(self->_packet_data);
+            self->_packet_data.clear();
+        }
 
         self->open();
     });

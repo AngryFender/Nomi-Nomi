@@ -4,11 +4,11 @@
 
 #include "iconnection.h"
 #include <boost/circular_buffer.hpp>
-
+#include "ireader.h".
 
 class Connection : public IConnection, public std::enable_shared_from_this<Connection> {
 public:
-    explicit Connection(boost::asio::io_context& context): _socket(context), _write_in_progress(false)
+    explicit Connection(boost::asio::io_context& context, std::unique_ptr<IReader> reader): _socket(context), _reader(std::move(reader)),_write_in_progress(false)
     {
 
     }
@@ -23,8 +23,9 @@ public:
 
 private:
     tcp::socket _socket;
+    std::unique_ptr<IReader> _reader;
     bool _write_in_progress;
-    boost::circular_buffer_space_optimized<char> _internal_buffer;
+    boost::circular_buffer<char> _internal_buffer;
     std::vector<char> _packet_data;
     std::vector<char> _temp_data;
     std::queue<std::vector<char>> _outbounds;
