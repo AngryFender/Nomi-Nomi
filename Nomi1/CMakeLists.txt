@@ -15,6 +15,9 @@ add_executable(Nomi1 main.cpp
         ../src/nodereader.h
         ../src/requestreader.cpp
         ../src/requestreader.h
+        ../src/imanager.h
+        ../src/manager.cpp
+        ../src/manager.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 if (Boost_FOUND)
