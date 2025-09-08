@@ -1,4 +1,6 @@
 
+@0xfba392abedaff6b4;
+
 struct Message {
   id @0 :UInt32;
   userid @1 :UInt32;
