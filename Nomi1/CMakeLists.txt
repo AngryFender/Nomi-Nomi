@@ -22,14 +22,28 @@ add_executable(Nomi1 main.cpp
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(CapnProto REQUIRED)
+
 get_property(imported_targets DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
+
 MESSAGE(STATUS "Imported targets ➜ ${imported_targets}")
-
-include_directories(${CAPNP_INCLUDE_DIRS})
-add_definitions(${CAPNP_DEFINITIONS})
-
-MESSAGE(STATUS "CAPNP_INCLUDE_DIRS ➜ ${CAPNP_INCLUE_DIRS}")
 
 if (Boost_FOUND)
     target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
 endif()
+
+# Automatically generate message.capnp.c++ and message.capnp.h
+set(CAPNPC_SRC_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../src/" CACHE STRING "" FORCE)
+set(CAPNPC_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated" CACHE STRING "" FORCE)
+file(MAKE_DIRECTORY "${CAPNPC_OUTPUT_DIR}")
+
+capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS ${CMAKE_CURRENT_SOURCE_DIR}/../src/message.capnp)
+MESSAGE(STATUS "Generated ➜ ${CAPNP_SRCS} & ${CAPNP_HDRS} @ ${CAPNPC_OUTPUT_DIR}")
+
+# Add generated sources to the target
+target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    Boost::boost
+    CapnProto::capnp
+    CapnProto::kj
+)
