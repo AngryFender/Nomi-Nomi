@@ -2,26 +2,33 @@
 #define MANAGER_H
 #include "iacceptor.h"
 #include "imanager.h"
+#include "ireader.h"
 
 class Manager: public IManager {
 
 public:
-    explicit Manager(std::unique_ptr<IAcceptor> acceptor):_acceptor(std::move(acceptor))
+    explicit Manager(std::unique_ptr<IAcceptor> client_acceptor, std::unique_ptr<IAcceptor> node_acceptor): _client_acceptor(std::move(client_acceptor)), _node_acceptor(std::move(node_acceptor))
     {
-        _acceptor->setHandler([this](const std::shared_ptr<IConnection>& socket)
+        _client_acceptor->setHandler([this](const std::shared_ptr<IConnection>& socket)
         {
-            this->AcceptConnection(socket);
+            this->AcceptClient(socket);
         });
 
     }
     ~Manager() override = default;
-    void AddConnection(const tcp::endpoint& endpoint, std::shared_ptr<IConnection> socket) override;
-    bool RemoveConnection(const std::string& address_port) override;
-    void AcceptConnection(const std::shared_ptr<IConnection>& socket) override;
-    void ClearAllConnections() override;
+    void AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnection> socket) override;
+    bool RemoveClient(const std::string& address_port) override;
+    void AcceptClient(const std::shared_ptr<IConnection>& socket) override;
+    void ClearAllClients() override;
+    void AddNode(const tcp::endpoint& endpoint, std::shared_ptr<IConnection> socket) override;
+    bool RemoveNode(const std::string& address_port) override;
+    void AcceptNode(const std::shared_ptr<IConnection>& socket) override;
+    void ClearAllNodes() override;
+
     void ReplyMessage(const std::string& address_port, const std::vector<char>& buffer) override;
 private:
-    std::unique_ptr<IAcceptor> _acceptor;
+    std::unique_ptr<IAcceptor> _client_acceptor;
+    std::unique_ptr<IAcceptor> _node_acceptor;
     std::unordered_map<std::string, std::shared_ptr<IConnection>> _out_connections;
 
 };
