@@ -29,7 +29,8 @@ public:
 private:
     std::unique_ptr<IAcceptor> _client_acceptor;
     std::unique_ptr<IAcceptor> _node_acceptor;
-    std::unordered_map<std::string, std::shared_ptr<IConnection>> _out_connections;
+    std::unordered_map<std::string, std::shared_ptr<IConnection>> _client_connections;
+    std::unordered_map<std::string, std::shared_ptr<IConnection>> _node_connections;
 
 };
 
