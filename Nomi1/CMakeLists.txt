@@ -19,6 +19,7 @@ add_executable(Nomi1 main.cpp
         ../src/imanager.h
         ../src/manager.cpp
         ../src/manager.h
+        ../src/utility/capnpreader.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(CapnProto REQUIRED)
