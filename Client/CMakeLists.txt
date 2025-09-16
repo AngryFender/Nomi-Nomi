@@ -18,6 +18,7 @@ add_executable(client main.cpp
         ../src/manager.cpp
         ../src/manager.h
         ../src/utility/capnpreader.h
+        ../src/utility/packetreader.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 if (Boost_FOUND)
