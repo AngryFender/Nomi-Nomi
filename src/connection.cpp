@@ -1,5 +1,8 @@
 #include "connection.h"
 
+#include "utility/capnpreader.h"
+#include "utility/packetreader.h"
+
 tcp::socket& Connection::get_socket()
 {
     return _socket;
@@ -18,31 +21,29 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 void Connection::open()
 {
     auto self = shared_from_this();
-    _socket.async_read_some(boost::asio::buffer(_temp_data), [self](const boost::system::error_code& err, std::size_t size)
+    auto len_buffer = std::make_shared<uint32_t>(0);
+
+    async_read(_socket, boost::asio::buffer(len_buffer.get(), sizeof(uint32_t)),
+        [len_buffer,self](const boost::system::error_code& err, std::size_t size)
     {
         if(err)
         {
-            //handle error
+            //todo handle error
             return;
         }
 
-        self->_temp_data.resize(size);
+        // get the message length and create message buffer of the same length
+        const uint32_t message_length = ntohl(*len_buffer);
+        auto message_buffer = std::make_shared<std::vector<char>>(message_length);
 
-        //implement framing layer
-        //add to persistent buffer
-        for(const char& item: self->_temp_data)
+        // read until the message buffer is filled
+        async_read(self->_socket, boost::asio::buffer(*message_buffer),
+        [self](const boost::system::error_code& code, std::size_t size)
         {
-            self->_internal_buffer.push_back(item);
-        }
+            //todo deserialise cap'n proto message
 
-        //try to parse the message
-        if(self->_reader->read_packets(self->_internal_buffer, self->_packet_data))
-        {
-            self->_receive_callback(self->_packet_data);
-            self->_packet_data.clear();
-        }
-
-        self->open();
+            self->open();
+        });
     });
 }
 
