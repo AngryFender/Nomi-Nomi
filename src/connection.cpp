@@ -38,9 +38,16 @@ void Connection::open()
 
         // read until the message buffer is filled
         async_read(self->_socket, boost::asio::buffer(*message_buffer),
-        [self](const boost::system::error_code& code, std::size_t size)
+        [self, message_buffer](const boost::system::error_code& code, std::size_t size)
         {
+            // use the first bytes as the message type
+            const uint8_t message_type = static_cast<uint8_t>(message_buffer.get()->front());
+
             //todo deserialise cap'n proto message
+            switch(message_type)
+            {
+
+            }
 
             self->open();
         });
