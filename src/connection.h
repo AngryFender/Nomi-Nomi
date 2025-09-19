@@ -8,7 +8,7 @@
 
 class Connection : public IConnection, public std::enable_shared_from_this<Connection> {
 public:
-    explicit Connection(boost::asio::io_context& context, std::shared_ptr<IReader> reader): _socket(context), _reader(reader),_write_in_progress(false)
+    explicit Connection(boost::asio::io_context& context): _socket(context),_write_in_progress(false)
     {
 
     }
@@ -23,7 +23,6 @@ public:
 
 private:
     tcp::socket _socket;
-    std::shared_ptr<IReader> _reader;
     bool _write_in_progress;
     boost::circular_buffer<char> _internal_buffer;
     std::vector<char> _packet_data;
