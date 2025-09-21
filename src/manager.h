@@ -2,7 +2,7 @@
 #define MANAGER_H
 #include "iacceptor.h"
 #include "imanager.h"
-#include "ireader.h"
+#include "imessageio.h"
 
 class Manager: public IManager {
 
