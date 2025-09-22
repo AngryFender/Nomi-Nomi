@@ -18,6 +18,8 @@ add_executable(Nomi1 main.cpp
         ../src/utility/capnpreader.h
         ../src/utility/packetreader.h
         ../src/messagetype.h
+        ../src/messageio.cpp
+        ../src/messageio.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(CapnProto REQUIRED)
