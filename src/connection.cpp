@@ -41,9 +41,9 @@ void Connection::open()
         [self, message_buffer](const boost::system::error_code& code, std::size_t size)
         {
             // use the first bytes as the message type
-            const uint8_t message_type_raw = static_cast<uint8_t>(message_buffer->front());
-            auto message_type = static_cast<enum message_type>(message_type_raw);
-            self->_reader->read_message(message_type, message_buffer.get());
+            //const uint8_t message_type_raw = static_cast<uint8_t>(message_buffer->front());
+            //auto message_type = static_cast<enum message_type>(message_type_raw);
+            //self->_reader->read_message(message_type, message_buffer.get());
 
             self->open();
         });

@@ -3,25 +3,26 @@
 #include <message.capnp.h>
 #include <capnp/serialize.h>
 #include <kj/common.h>
-
-bool deserialise_message(std::vector<char>& buffer)
+namespace utility
 {
-    //convert to words
-    auto words = kj::arrayPtr(reinterpret_cast<const capnp::word*>(buffer.data()),buffer.size()/sizeof(capnp::word));
+    inline bool deserialise_message(std::vector<char>& buffer)
+    {
+        //convert to words
+        auto words = kj::arrayPtr(reinterpret_cast<const capnp::word*>(buffer.data()),buffer.size()/sizeof(capnp::word));
 
-    //construct a reader
-    capnp::FlatArrayMessageReader reader(words);
-    Message::Reader msg = reader.getRoot<Message>();
+        //construct a reader
+        capnp::FlatArrayMessageReader reader(words);
+        Message::Reader msg = reader.getRoot<Message>();
 
-    //todo return the deserialised message
-    return true;
+        //todo return the deserialised message
+        return true;
+    }
+
+    inline bool serialise_message()
+    {
+        //todo
+        return false;
+    }
 }
-
-bool serialise_message()
-{
-    //todo
-    return false;
-}
-
 
 #endif //CAPNPREADER_H
