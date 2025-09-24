@@ -39,10 +39,21 @@ file(MAKE_DIRECTORY "${CAPNPC_OUTPUT_DIR}")
 capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS ${CMAKE_CURRENT_SOURCE_DIR}/../src/message.capnp)
 MESSAGE(STATUS "Generated ➜ ${CAPNP_SRCS} & ${CAPNP_HDRS} @ ${CAPNPC_OUTPUT_DIR}")
 
+include(FetchContent)
+FetchContent_Declare(
+        concurrentqueue
+        GIT_REPOSITORY https://github.com/cameron314/concurrentqueue.git
+        GIT_TAG        master   # or a specific commit
+)
+FetchContent_MakeAvailable(concurrentqueue)
+
+
 # Add generated sources to the target
 target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CAPNPC_OUTPUT_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CAPNPC_OUTPUT_DIR}
+    ${concurrentqueue_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::boost
