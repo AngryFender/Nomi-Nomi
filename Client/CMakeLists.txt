@@ -18,6 +18,7 @@ add_executable(client main.cpp
         ../src/messagetype.h
         ../src/messageio.cpp
         ../src/messageio.h
+        ../src/daemoninfo.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 if (Boost_FOUND)

@@ -5,16 +5,17 @@
 #include "iconnection.h"
 #include <boost/circular_buffer.hpp>
 #include "imessageio.h"
+#include "daemoninfo.h"
 
 class Connection : public IConnection, public std::enable_shared_from_this<Connection> {
 public:
-    explicit Connection(boost::asio::io_context& context, std::shared_ptr<IMessageio> reader): _socket(context),_reader(reader),_write_in_progress(false)
+    explicit Connection(const daemon::type type, boost::asio::io_context& context):_type(type), _socket(context),_write_in_progress(false)
     {
 
     }
     ~Connection() override = default;
     tcp::socket& get_socket() override;
-    void set_receive_callback(std::function <void(std::vector<char>&)> callback) override;
+    void set_receive_callback(std::function <void(daemon::type,std::shared_ptr<std::vector<char>>)> callback) override;
     void set_send_callback(std::function <void(const boost::system::error_code&)> callback) override;
     void open() override;
     void async_send(const std::vector<char>& packet) override;
@@ -22,15 +23,15 @@ public:
     void close() override;
 
 private:
+    daemon::type _type;
     tcp::socket _socket;
-    std::shared_ptr<IMessageio> _reader;
     bool _write_in_progress;
     boost::circular_buffer<char> _internal_buffer;
     std::vector<char> _packet_data;
     std::vector<char> _temp_data;
     std::queue<std::vector<char>> _outbounds;
     std::function <void(const boost::system::error_code&)> _send_callback;
-    std::function <void(std::vector<char>&rawData)> _receive_callback;
+    std::function <void(const daemon::type, std::shared_ptr<std::vector<char>>)> _receive_callback;
 
     void start_async_send();
 };
