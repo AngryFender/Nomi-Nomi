@@ -8,7 +8,7 @@ tcp::socket& Connection::get_socket()
     return _socket;
 }
 
-void Connection::set_receive_callback(std::function<void(const daemon::type, std::shared_ptr<std::vector<char>>)> callback)
+void Connection::set_receive_callback(std::function<void(const daemon_type, std::shared_ptr<std::vector<char>>)> callback)
 {
     _receive_callback = callback;
 }

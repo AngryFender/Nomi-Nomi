@@ -3,6 +3,7 @@
 #include "iacceptor.h"
 #include "imanager.h"
 #include "imessageio.h"
+#include "concurrentqueue.h"
 
 class Manager: public IManager {
 
@@ -14,7 +15,14 @@ public:
             this->AcceptClient(socket);
         });
 
+        _node_acceptor->setHandler([this](const std::shared_ptr<IConnection>& socket)
+        {
+           this->AcceptNode(socket) ;
+        });
+
+
     }
+
     ~Manager() override = default;
     void AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnection> socket) override;
     bool RemoveClient(const std::string& address_port) override;
@@ -24,14 +32,14 @@ public:
     bool RemoveNode(const std::string& address_port) override;
     void AcceptNode(const std::shared_ptr<IConnection>& socket) override;
     void ClearAllNodes() override;
-
     void ReplyMessage(const std::string& address_port, const std::vector<char>& buffer) override;
 private:
     std::unique_ptr<IAcceptor> _client_acceptor;
     std::unique_ptr<IAcceptor> _node_acceptor;
     std::unordered_map<std::string, std::shared_ptr<IConnection>> _client_connections;
     std::unordered_map<std::string, std::shared_ptr<IConnection>> _node_connections;
-
+    moodycamel::ConcurrentQueue<std::shared_ptr<std::vector<char>>> _server_requests;
+    moodycamel::ConcurrentQueue<std::shared_ptr<std::vector<char>>> _node_requests;
 };
 
 
