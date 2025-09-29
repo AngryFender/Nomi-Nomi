@@ -11,8 +11,7 @@ void Manager::AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnecti
             return;
         }
         _client_connections[address_port] = socket;
-
-        socket->set_receive_callback([this, address_port](std::vector<char>& buffer)
+        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
         {
             //todo delegate the callback to logic object
         });
@@ -47,7 +46,7 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
     {
         _client_connections[address_port] = socket;
 
-        socket->set_receive_callback([this, address_port](std::vector<char>& buffer)
+        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>>buffer)
         {
             //todo delegate the callback to logic object
         });
@@ -77,7 +76,7 @@ void Manager::AddNode(const tcp::endpoint& endpoint, std::shared_ptr<IConnection
         }
         _node_connections[address_port] = socket;
 
-        socket->set_receive_callback([this, address_port](std::vector<char>& buffer)
+        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
         {
             //todo delegate the callback to logic object
         });
@@ -114,7 +113,7 @@ void Manager::AcceptNode(const std::shared_ptr<IConnection>& socket)
     {
         _node_connections[address_port] = socket;
 
-        socket->set_receive_callback([this, address_port](std::vector<char>& buffer)
+        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
         {
             //todo delegate the callback to logic object
         });
