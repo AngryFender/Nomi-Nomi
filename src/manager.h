@@ -8,7 +8,15 @@
 class Manager: public IManager {
 
 public:
-    explicit Manager(std::unique_ptr<IAcceptor> client_acceptor, std::unique_ptr<IAcceptor> node_acceptor): _client_acceptor(std::move(client_acceptor)), _node_acceptor(std::move(node_acceptor))
+    explicit Manager(std::unique_ptr<IAcceptor> client_acceptor,
+        std::unique_ptr<IAcceptor> node_acceptor,
+        const int client_thread_max,
+        const int node_thread_max): _client_acceptor(std::move(client_acceptor)),
+                                    _node_acceptor(std::move(node_acceptor)),
+                                    _client_threads(client_thread_max),
+                                    _node_threads(node_thread_max),
+                                    _client_requests(100),
+                                    _node_requests(100)
     {
         _client_acceptor->setHandler([this](const std::shared_ptr<IConnection>& socket)
         {
@@ -20,10 +28,18 @@ public:
            this->AcceptNode(socket) ;
         });
 
-
+        //TODO define what threads do
     }
 
-    ~Manager() override = default;
+    ~Manager() override
+    {
+        for (auto &t : _client_threads)
+            t.join();
+
+        for (auto &t : _node_threads)
+            t.join();
+    };
+
     void AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnection> socket) override;
     bool RemoveClient(const std::string& address_port) override;
     void AcceptClient(const std::shared_ptr<IConnection>& socket) override;
@@ -38,8 +54,11 @@ private:
     std::unique_ptr<IAcceptor> _node_acceptor;
     std::unordered_map<std::string, std::shared_ptr<IConnection>> _client_connections;
     std::unordered_map<std::string, std::shared_ptr<IConnection>> _node_connections;
+    std::vector<std::thread> _client_threads;
+    std::vector<std::thread> _node_threads;
     moodycamel::ConcurrentQueue<std::shared_ptr<std::vector<char>>> _client_requests;
     moodycamel::ConcurrentQueue<std::shared_ptr<std::vector<char>>> _node_requests;
+
 };
 
 
