@@ -28,7 +28,42 @@ public:
            this->AcceptNode(socket) ;
         });
 
-        //TODO define what threads do
+        for (int i = 0; i < client_thread_max; ++i)
+        {
+            _client_threads.emplace_back([&]()
+            {
+                while (true)
+                {
+                    std::shared_ptr<std::vector<char>> request;
+                    if (_client_requests.try_dequeue(request))
+                    {
+                        //TODO send the request to deserialise
+                    }
+                    else
+                    {
+                        std::this_thread::yield();
+                    }
+                }
+            });
+        }
+        for (int i = 0; i < node_thread_max; ++i)
+        {
+            _node_threads.emplace_back([&]()
+            {
+                while (true)
+                {
+                    std::shared_ptr<std::vector<char>> request;
+                    if (_node_requests.try_dequeue(request))
+                    {
+                        //TODO send the request to deserialise
+                    }
+                    else
+                    {
+                        std::this_thread::yield();
+                    }
+                }
+            });
+        }
     }
 
     ~Manager() override
