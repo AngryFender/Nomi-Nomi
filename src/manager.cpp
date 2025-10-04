@@ -13,7 +13,10 @@ void Manager::AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnecti
         _client_connections[address_port] = socket;
         socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
         {
-            this->_client_requests.try_enqueue(buffer);
+            if(!this->_client_requests.try_enqueue(buffer))
+            {
+                //todo log error
+            }
         });
 
         socket->set_send_callback([this, address_port](const boost::system::error_code& code)
@@ -48,7 +51,10 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
 
         socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>>buffer)
         {
-            this->_client_requests.try_enqueue(buffer);
+            if(!this->_client_requests.try_enqueue(buffer))
+            {
+                //todo log error
+            }
         });
 
         socket->set_send_callback([this, address_port](const boost::system::error_code& code)
@@ -79,7 +85,10 @@ void Manager::AddNode(const tcp::endpoint& endpoint, std::shared_ptr<IConnection
         socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
         {
             //todo delegate the callback to logic object
-            this->_node_requests.try_enqueue(buffer);
+            if(!this->_node_requests.try_enqueue(buffer))
+            {
+                //todo log error
+            }
         });
 
         socket->set_send_callback([this, address_port](const boost::system::error_code& code)
@@ -117,7 +126,10 @@ void Manager::AcceptNode(const std::shared_ptr<IConnection>& socket)
         socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
         {
             //todo delegate the callback to logic object
-            this->_node_requests.try_enqueue(buffer);
+            if(!this->_node_requests.try_enqueue(buffer))
+            {
+                //todo log error
+            }
         });
 
         socket->set_send_callback([this, address_port](const boost::system::error_code& code)
