@@ -4,6 +4,7 @@
 #include "imanager.h"
 #include "imessageio.h"
 #include "concurrentqueue.h"
+#include "utility/capnpreader.h"
 
 class Manager: public IManager {
 
@@ -37,7 +38,10 @@ public:
                     std::shared_ptr<std::vector<char>> request;
                     if (_client_requests.try_dequeue(request))
                     {
-                        //TODO send the request to deserialise
+                        Message::Reader msg;
+                        utility::deserialise_message(*request, msg);
+
+                        //TODO do work after deserialising the message
                     }
                     else
                     {
@@ -55,7 +59,10 @@ public:
                     std::shared_ptr<std::vector<char>> request;
                     if (_node_requests.try_dequeue(request))
                     {
-                        //TODO send the request to deserialise
+                        Message::Reader msg;
+                        utility::deserialise_message(*request, msg);
+
+                        //TODO do work after deserialising the message
                     }
                     else
                     {
