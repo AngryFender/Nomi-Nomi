@@ -6,7 +6,7 @@
 
 class Acceptor: public IAcceptor {
 public:
-    Acceptor(const daemon_type type, boost::asio::io_context& io_context, const boost::asio::ip::port_type port, std::shared_ptr<IMessageio> messageio):_type(type), _io_context(io_context),
+    Acceptor(const daemon_type type, boost::asio::io_context& io_context, const boost::asio::ip::port_type port):_type(type), _io_context(io_context),
         _acceptor(_io_context, tcp::endpoint(tcp::v4(), port))
     {}
     ~Acceptor() override = default;
