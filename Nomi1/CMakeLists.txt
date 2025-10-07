@@ -42,20 +42,28 @@ include(FetchContent)
 FetchContent_Declare(
         concurrentqueue
         GIT_REPOSITORY https://github.com/cameron314/concurrentqueue.git
-        GIT_TAG        master   # or a specific commit
+        GIT_TAG        master
 )
 FetchContent_MakeAvailable(concurrentqueue)
 
+FetchContent_Declare(
+        fmtlog
+        GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
+        GIT_TAG       main
+)
+FetchContent_MakeAvailable(fmtlog)
 
 # Add generated sources to the target
 target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CAPNPC_OUTPUT_DIR}
-    ${concurrentqueue_SOURCE_DIR})
+    ${concurrentqueue_SOURCE_DIR}
+    ${fmtlog_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::boost
     CapnProto::capnp
     CapnProto::kj
+    fmt::fmt
 )
