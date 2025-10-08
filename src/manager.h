@@ -23,11 +23,13 @@ public:
         {
             this->AcceptClient(socket);
         });
+        _client_acceptor->open();
 
         _node_acceptor->setHandler([this](const std::shared_ptr<IConnection>& socket)
         {
            this->AcceptNode(socket) ;
         });
+        _node_acceptor->open();
 
         for (int i = 0; i < client_thread_max; ++i)
         {
