@@ -1,5 +1,7 @@
 #include "manager.h"
 
+#include <fmtlog.h>
+
 void Manager::AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnection> socket)
 {
     std::string address_port = endpoint.address().to_string() +":" + std::to_string(endpoint.port());
@@ -11,7 +13,7 @@ void Manager::AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnecti
             return;
         }
         _client_connections[address_port] = socket;
-        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
+        socket->set_receive_callback([this, address_port](std::shared_ptr<std::vector<char>> buffer)
         {
             if(!this->_client_requests.try_enqueue(buffer))
             {
@@ -49,7 +51,7 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
     {
         _client_connections[address_port] = socket;
 
-        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>>buffer)
+        socket->set_receive_callback([this, address_port](std::shared_ptr<std::vector<char>>buffer)
         {
             if(!this->_client_requests.try_enqueue(buffer))
             {
@@ -61,6 +63,7 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
         {
             //todo log error message
         });
+        logi("Connected from client  {}", address_port);
     }
 }
 
@@ -82,7 +85,7 @@ void Manager::AddNode(const tcp::endpoint& endpoint, std::shared_ptr<IConnection
         }
         _node_connections[address_port] = socket;
 
-        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
+        socket->set_receive_callback([this, address_port](std::shared_ptr<std::vector<char>> buffer)
         {
             //todo delegate the callback to logic object
             if(!this->_node_requests.try_enqueue(buffer))
@@ -122,8 +125,7 @@ void Manager::AcceptNode(const std::shared_ptr<IConnection>& socket)
     if(!_node_connections.contains(address_port))
     {
         _node_connections[address_port] = socket;
-
-        socket->set_receive_callback([this, address_port](daemon_type, std::shared_ptr<std::vector<char>> buffer)
+        socket->set_receive_callback([this, address_port](std::shared_ptr<std::vector<char>> buffer)
         {
             //todo delegate the callback to logic object
             if(!this->_node_requests.try_enqueue(buffer))
@@ -136,6 +138,9 @@ void Manager::AcceptNode(const std::shared_ptr<IConnection>& socket)
         {
             //todo log error message
         });
+
+
+        logi("Connected node: {}", address_port);
     }
 }
 

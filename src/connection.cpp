@@ -1,5 +1,4 @@
 #include "connection.h"
-#include "messagetype.h"
 #include "utility/capnpreader.h"
 #include "utility/packetreader.h"
 
@@ -8,7 +7,7 @@ tcp::socket& Connection::get_socket()
     return _socket;
 }
 
-void Connection::set_receive_callback(std::function<void(const daemon_type, std::shared_ptr<std::vector<char>>)> callback)
+void Connection::set_receive_callback(std::function<void(std::shared_ptr<std::vector<char>>)> callback)
 {
     _receive_callback = callback;
 }
@@ -40,12 +39,7 @@ void Connection::open()
         async_read(self->_socket, boost::asio::buffer(*message_buffer),
         [self, message_buffer](const boost::system::error_code& code, std::size_t size)
         {
-            self->_receive_callback(self->_type, message_buffer);
-            // use the first bytes as the message type
-            //const uint8_t message_type_raw = static_cast<uint8_t>(message_buffer->front());
-            //auto message_type = static_cast<enum message_type>(message_type_raw);
-            //self->_reader->read_message(message_type, message_buffer.get());
-
+            self->_receive_callback(message_buffer);
             self->open();
         });
     });
