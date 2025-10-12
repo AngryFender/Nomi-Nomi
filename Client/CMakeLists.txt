@@ -3,24 +3,21 @@ project(client)
 
 set(CMAKE_CXX_STANDARD 20)
 
+MESSAGE(STATUS "Using toolchain file ➜ ${CMAKE_TOOLCHAIN_FILE}")
 add_executable(client main.cpp
         ../src/iconnection.h
         ../src/connection.cpp
         ../src/connection.h
-#        ../src/iacceptor.h
-#        ../src/acceptor.cpp
-#        ../src/acceptor.h
-#        ../src/imessageio.h
-#        ../src/manager.cpp
-#        ../src/manager.h
-#        ../src/utility/capnpreader.h
-#        ../src/utility/packetreader.h
-#        ../src/messagetype.h
-#        ../src/daemoninfo.h
+        ../src/utility/capnpreader.h
+        ../src/utility/packetreader.h
+        ../src/messagetype.h
+        ../src/daemoninfo.h
 )
-
 find_package(Boost 1.74.0 REQUIRED)
 find_package(CapnProto REQUIRED)
+
+get_property(imported_targets DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
+MESSAGE(STATUS "Imported targets ➜ ${imported_targets}")
 
 if (Boost_FOUND)
         target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
@@ -37,10 +34,13 @@ MESSAGE(STATUS "Generated ➜ ${CAPNP_SRCS} & ${CAPNP_HDRS} @ ${CAPNPC_OUTPUT_DI
 include(FetchContent)
 FetchContent_Declare(
         fmtlog
-        GIT_REPOSITORY      https://github.com/MengRao/fmtlog.git
-        GIT_TAG             main
+        GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
+        GIT_TAG       main
 )
 FetchContent_MakeAvailable(fmtlog)
+
+# Add generated sources to the target
+target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CAPNPC_OUTPUT_DIR}
