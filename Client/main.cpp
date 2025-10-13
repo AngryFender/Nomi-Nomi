@@ -3,7 +3,7 @@
 #include "fmtlog.h"
 #include "fmtlog-inl.h"
 #include "../src/connection.h"
-// #include "message.capnp.h" not being generated
+#include "message.capnp.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
@@ -41,10 +41,28 @@ int main()
 
     //TODO serialise message into cap'n proto message
     capnp::MallocMessageBuilder message;
+    Message::Builder builder = message.initRoot<Message>();
+    builder.setId(69);
+    builder.setType(1);
+    builder.setUserid(100);
+    builder.setResourceid(36);
 
-    //TODO send the message via socket
+    kj::Array<capnp::word> words = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<const capnp::word> view = words.asPtr();
+    kj::ArrayPtr<const unsigned char> bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(view.begin()), view.size() * sizeof(capnp::word));
+    std::vector<char> payload(bytes.begin(), bytes.end());
+
+    std::thread t1([&]()
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+
+        //TODO send the message via socket
+        connection->async_send(payload);
+    }) ;
 
     io_context.run();
+    t1.join();
+
     fmtlog::stopPollingThread();
     return 0;
 }
