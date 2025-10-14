@@ -25,10 +25,18 @@ int main()
         logi("Connected to server @{}", address);
     });
 
-    connection->set_receive_callback([address](std::shared_ptr<std::vector<char>> raw)
+    connection->set_receive_callback([address](std::shared_ptr<std::vector<char>> buffer)
     {
         logi("Recieved message from {}", address);
         //TODO deserialise Cap'n Proto message
+        const auto* raw = reinterpret_cast<const capnp::word*>(buffer->data());
+        size_t wordCount = buffer->size() / sizeof(capnp::word);
+
+        kj::ArrayPtr<const capnp::word> view(raw, wordCount);
+        capnp::FlatArrayMessageReader reader(view);
+        auto msg = reader.getRoot<Message>();
+        logi("message id:{}, resource id:{}, type: {}, userid: {} ", msg.getId(), msg.getResourceid(), msg.getType(),
+             msg.getUserid());
     });
 
     connection->set_send_callback([address](const boost::system::error_code& err)

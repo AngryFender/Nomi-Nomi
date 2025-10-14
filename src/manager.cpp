@@ -53,7 +53,17 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
 
         socket->set_receive_callback([this, address_port](std::shared_ptr<std::vector<char>>buffer)
         {
-            if(!this->_client_requests.try_enqueue(buffer))
+            const auto* raw = reinterpret_cast<const capnp::word*>(buffer->data());
+            size_t wordCount = buffer->size() / sizeof(capnp::word);
+
+            kj::ArrayPtr<const capnp::word> view(raw, wordCount);
+            capnp::FlatArrayMessageReader reader(view);
+            auto msg = reader.getRoot<Message>();
+            logi("message id:{}, resource id:{}, type: {}, userid: {} ", msg.getId(), msg.getResourceid(),
+                 msg.getType(),
+                 msg.getUserid());
+
+            if (!this->_client_requests.try_enqueue(buffer))
             {
                 //todo log error
             }
