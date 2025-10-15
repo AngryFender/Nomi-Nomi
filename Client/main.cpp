@@ -58,7 +58,13 @@ int main()
     kj::Array<capnp::word> words = capnp::messageToFlatArray(message);
     kj::ArrayPtr<const capnp::word> view = words.asPtr();
     kj::ArrayPtr<const unsigned char> bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(view.begin()), view.size() * sizeof(capnp::word));
-    std::vector<char> payload(bytes.begin(), bytes.end());
+
+    int32_t capn_message_length = htonl(bytes.size());
+    std::vector<char> payload;
+    payload.reserve(sizeof(capn_message_length) + capn_message_length);
+
+    payload.insert(payload.end(),reinterpret_cast<const char*>(&capn_message_length), reinterpret_cast<const char*>(&capn_message_length+sizeof(capn_message_length)));
+    payload.insert(payload.end(), bytes.begin(), bytes.end());
 
     std::thread t1([&]()
     {
