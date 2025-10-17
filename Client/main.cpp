@@ -19,6 +19,7 @@ int main()
     //create socket connection to server and set callbacks
     const std::string address = "127.0.0.1";
     boost::asio::ip::basic_endpoint<tcp> end_point(boost::asio::ip::address::from_string(address), SERVER_PORT);
+
     auto connection = std::make_shared<Connection>(io_context);
     connection->async_connect(end_point, [address](const boost::system::error_code& err)
     {

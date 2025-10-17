@@ -1,3 +1,4 @@
+#include <fmtlog.h>
 #include "connection.h"
 #include "utility/capnpreader.h"
 #include "utility/packetreader.h"
@@ -25,6 +26,8 @@ void Connection::open()
     async_read(_socket, boost::asio::buffer(len_buffer.get(), sizeof(uint32_t)),
         [len_buffer,self](const boost::system::error_code& err, std::size_t size)
     {
+
+        logi("recieved something");
         if(err)
         {
             //todo handle error
@@ -34,6 +37,7 @@ void Connection::open()
         // get the message length and create message buffer of the same length
         const uint32_t message_length = ntohl(*len_buffer);
         auto message_buffer = std::make_shared<std::vector<char>>(message_length);
+
 
         // read until the message buffer is filled
         async_read(self->_socket, boost::asio::buffer(*message_buffer),
@@ -68,10 +72,15 @@ void Connection::close()
 
 void Connection::start_async_send()
 {
+    logi("preparing to async send data, buffer size: {}, ", _outbounds.size());
     auto self = shared_from_this();
     const auto buffer = boost::asio::buffer(_outbounds.front());
     async_write(_socket, buffer, [self](const boost::system::error_code& error, size_t size)
     {
+        if(error)
+        {
+            loge("Error while sending bytes: {}", error.message());
+        }
         self->_outbounds.pop();
         if(self->_outbounds.empty() || error)
         {
