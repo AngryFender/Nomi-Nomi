@@ -7,7 +7,7 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-#define SERVER_PORT 3498
+#define SERVER_PORT 3491
 
 int main()
 {

@@ -72,11 +72,12 @@ void Connection::close()
 
 void Connection::start_async_send()
 {
-    logi("preparing to async send data, buffer size: {}, ", _outbounds.size());
+    logi("preparing to async send data, data size: {}, ", _outbounds.front().size());
     auto self = shared_from_this();
     const auto buffer = boost::asio::buffer(_outbounds.front());
     async_write(_socket, buffer, [self](const boost::system::error_code& error, size_t size)
     {
+        logi("callback after async_write");
         if(error)
         {
             loge("Error while sending bytes: {}", error.message());

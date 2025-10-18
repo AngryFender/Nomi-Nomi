@@ -16,7 +16,7 @@ void Acceptor::open()
     {
         if (error)
         {
-            //print error
+            loge("error while accepting incoming connnection:  {}", error.message());
         }
         _accept_handler(socket_base);
 
