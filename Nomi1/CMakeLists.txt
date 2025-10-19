@@ -11,7 +11,6 @@ add_executable(Nomi1 main.cpp
         ../src/iacceptor.h
         ../src/acceptor.cpp
         ../src/acceptor.h
-        ../src/imessageio.h
         ../src/imanager.h
         ../src/manager.cpp
         ../src/manager.h

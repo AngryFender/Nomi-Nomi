@@ -3,7 +3,6 @@
 #include <queue>
 #include "iconnection.h"
 #include <boost/circular_buffer.hpp>
-#include "imessageio.h"
 
 class Connection : public IConnection, public std::enable_shared_from_this<Connection> {
 public:

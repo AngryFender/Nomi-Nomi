@@ -1,10 +1,13 @@
 #ifndef MANAGER_H
 #define MANAGER_H
+#include <fmtlog.h>
+
 #include "iacceptor.h"
 #include "imanager.h"
-#include "imessageio.h"
 #include "concurrentqueue.h"
 #include "utility/capnpreader.h"
+#include <capnp/message.h>
+#include <capnp/serialize.h>
 
 class Manager: public IManager {
 
