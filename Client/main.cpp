@@ -7,6 +7,8 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
+#include "../src/utility/packetreader.h"
+
 #define SERVER_PORT 3491
 
 int main()
@@ -48,31 +50,36 @@ int main()
         }
     });
 
-    //TODO serialise message into cap'n proto message
-    capnp::MallocMessageBuilder message;
-    Message::Builder builder = message.initRoot<Message>();
-    builder.setId(69);
-    builder.setType(1);
-    builder.setUserid(100);
-    builder.setResourceid(36);
-
-    kj::Array<capnp::word> words = capnp::messageToFlatArray(message);
-    kj::ArrayPtr<const capnp::word> view = words.asPtr();
-    kj::ArrayPtr<const unsigned char> bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(view.begin()), view.size() * sizeof(capnp::word));
-
-    int32_t capn_message_length = htonl(bytes.size());
-    std::vector<char> payload;
-    payload.reserve(sizeof(capn_message_length) + capn_message_length);
-
-    payload.insert(payload.end(),reinterpret_cast<const char*>(&capn_message_length), reinterpret_cast<const char*>(&capn_message_length+sizeof(capn_message_length)));
-    payload.insert(payload.end(), bytes.begin(), bytes.end());
-
     std::thread t1([&]()
     {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        while(true)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(2));
 
-        //TODO send the message via socket
-        connection->async_send(payload);
+            //TODO serialise message into cap'n proto message
+            capnp::MallocMessageBuilder message;
+            Message::Builder builder = message.initRoot<Message>();
+            builder.setId(69);
+            builder.setType(1);
+            builder.setUserid(100);
+            builder.setResourceid(36);
+
+            kj::Array<capnp::word> words = capnp::messageToFlatArray(message);
+            kj::ArrayPtr<const capnp::word> view = words.asPtr();
+            kj::ArrayPtr<const unsigned char> bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(view.begin()),
+                                                                   view.size() * sizeof(capnp::word));
+
+            uint32_t capn_message_length = htonl(bytes.size());
+            uint8_t fake_data = 69;
+            std::vector<char> payload;
+            payload.reserve(sizeof(capn_message_length) + bytes.size());
+            utility::append_bytes(payload, capn_message_length);
+            utility::append_bytes(payload, fake_data);
+            // payload.insert(payload.end(), bytes.begin(), bytes.end());
+
+            //TODO send the message via socket
+            connection->async_send(payload);
+        }
     }) ;
 
     io_context.run();
