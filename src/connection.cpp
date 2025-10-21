@@ -21,21 +21,21 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 void Connection::open()
 {
     auto self = shared_from_this();
-    auto len_buffer = std::make_shared<uint32_t>(0);
+    auto size_buffer = std::make_shared<uint32_t>(0);
 
-    async_read(_socket, boost::asio::buffer(len_buffer.get(), sizeof(uint32_t)),
-        [len_buffer,self](const boost::system::error_code& err, std::size_t size)
+    async_read(_socket, boost::asio::buffer(size_buffer.get(), sizeof(size_buffer)),
+        [size_buffer,self](const boost::system::error_code& err, std::size_t size)
     {
-
-        logi("recieved something");
+        logi("received the size of the message");
         if(err)
         {
             //todo handle error
+            loge("Error when receiving packets");
             return;
         }
 
         // get the message length and create message buffer of the same length
-        const uint32_t message_length = ntohl(*len_buffer);
+        const uint32_t message_length = ntohl(*size_buffer);
         auto message_buffer = std::make_shared<std::vector<char>>(message_length);
 
 

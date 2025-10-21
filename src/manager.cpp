@@ -73,6 +73,7 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
         {
             //todo log error message
         });
+        socket->open();
         logi("Connected from client  {}", address_port);
     }
 }
@@ -148,8 +149,7 @@ void Manager::AcceptNode(const std::shared_ptr<IConnection>& socket)
         {
             //todo log error message
         });
-
-
+        socket->open();
         logi("Connected node: {}", address_port);
     }
 }
