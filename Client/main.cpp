@@ -54,7 +54,7 @@ int main()
     {
         while(true)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             //TODO serialise message into cap'n proto message
             capnp::MallocMessageBuilder message;
@@ -68,14 +68,14 @@ int main()
             kj::ArrayPtr<const capnp::word> view = words.asPtr();
             kj::ArrayPtr<const unsigned char> bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(view.begin()),
                                                                    view.size() * sizeof(capnp::word));
-
             uint32_t capn_message_length = htonl(bytes.size());
-            uint8_t fake_data = 69;
+            // uint32_t fake_data = htonl(4);
             std::vector<char> payload;
             payload.reserve(sizeof(capn_message_length) + bytes.size());
             utility::append_bytes(payload, capn_message_length);
-            utility::append_bytes(payload, fake_data);
-            // payload.insert(payload.end(), bytes.begin(), bytes.end());
+            // utility::append_bytes(payload, fake_data);
+            // utility::append_bytes(payload, fake_data);
+            payload.insert(payload.end(), bytes.begin(), bytes.end());
 
             //TODO send the message via socket
             connection->async_send(payload);

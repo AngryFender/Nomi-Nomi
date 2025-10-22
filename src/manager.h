@@ -12,8 +12,8 @@
 class Manager: public IManager {
 
 public:
-    explicit Manager(std::unique_ptr<IAcceptor> client_acceptor,
-        std::unique_ptr<IAcceptor> node_acceptor,
+    explicit Manager(std::unique_ptr<IAcceptor>&& client_acceptor,
+        std::unique_ptr<IAcceptor>&& node_acceptor,
         const int client_thread_max,
         const int node_thread_max): _client_acceptor(std::move(client_acceptor)),
                                     _node_acceptor(std::move(node_acceptor)),
@@ -46,7 +46,16 @@ public:
                         Message::Reader msg;
                         utility::deserialise_message(*request, msg);
 
-                        //TODO do work after deserialising the message
+                        // //TODO do work after deserialising the message
+                        // const auto* raw = reinterpret_cast<const capnp::word*>(request->data());
+                        // size_t wordCount = request->size() / sizeof(capnp::word);
+                        //
+                        // kj::ArrayPtr<const capnp::word> view(raw, wordCount);
+                        // capnp::FlatArrayMessageReader reader(view);
+                        // msg = reader.getRoot<Message>();
+                        // logi("message id:{}, resource id:{}, type: {}, userid: {} ", msg.getId(), msg.getResourceid(),
+                        //      msg.getType(),
+                        //      msg.getUserid());
                     }
                     else
                     {
