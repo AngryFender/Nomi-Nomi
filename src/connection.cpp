@@ -22,7 +22,6 @@ void Connection::open()
 {
     auto self = shared_from_this();
     auto size_buffer = std::make_shared<uint32_t>(0);
-    logi("size of first packet {}", sizeof(uint32_t));
 
     async_read(_socket, boost::asio::buffer(size_buffer.get(), sizeof(uint32_t)),
         [size_buffer,self](const boost::system::error_code& err, std::size_t size)
@@ -36,14 +35,12 @@ void Connection::open()
 
         // get the message length and create message buffer of the same length
         const uint32_t message_length = ntohl(*size_buffer);
-        logi("1st received packets {}",message_length);
         auto message_buffer = std::make_shared<std::vector<char>>(message_length);
 
         // read until the message buffer is filled
         async_read(self->_socket, boost::asio::buffer(*message_buffer),
         [self, message_buffer](const boost::system::error_code& code, std::size_t size)
         {
-            logi("2nd received packets");
             self->_receive_callback(message_buffer);
             self->open();
         });
@@ -74,10 +71,8 @@ void Connection::close()
 void Connection::start_async_send()
 {
     auto self = shared_from_this();
-    const auto buffer = boost::asio::buffer(_outbounds.front());
-    async_write(_socket, buffer, [self](const boost::system::error_code& error, size_t size)
+    async_write(_socket, boost::asio::buffer(_outbounds.front()), [self](const boost::system::error_code& error, size_t size)
     {
-        logi("callback after async_write");
         if(error)
         {
             loge("Error while sending bytes: {}", error.message());
@@ -86,9 +81,10 @@ void Connection::start_async_send()
         if(self->_outbounds.empty() || error)
         {
             self->_write_in_progress = false;
-            self->_send_callback(error);
+            if (error) self->_send_callback(error);
             return;
         }
         self->start_async_send();
     });
+    logi("sent package size {}", _outbounds.front().size());
 }

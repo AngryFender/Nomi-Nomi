@@ -5,10 +5,10 @@
 #include <fmtlog.h>
 #include "fmtlog-inl.h"
 
-#define SERVER_LISTENING_PORT 3491
-#define CLIENT_THREAD_MAX 2
-#define NODE_PORT 3499
-#define NODE_THREAD_MAX 2
+constexpr int SERVER_LISTENING_PORT = 3491;
+constexpr int CLIENT_THREAD_MAX = 2;
+constexpr int NODE_PORT = 3499;
+constexpr int NODE_THREAD_MAX = 2;
 
 int main()
 {

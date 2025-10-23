@@ -9,7 +9,7 @@
 
 #include "../src/utility/packetreader.h"
 
-#define SERVER_PORT 3491
+constexpr int SERVER_PORT = 3491;
 
 int main()
 {
@@ -50,6 +50,9 @@ int main()
         }
     });
 
+    auto work = boost::asio::make_work_guard(io_context);
+
+
     std::thread t1([&]()
     {
         while(true)
@@ -69,18 +72,16 @@ int main()
             kj::ArrayPtr<const unsigned char> bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(view.begin()),
                                                                    view.size() * sizeof(capnp::word));
             uint32_t capn_message_length = htonl(bytes.size());
-            // uint32_t fake_data = htonl(4);
             std::vector<char> payload;
             payload.reserve(sizeof(capn_message_length) + bytes.size());
             utility::append_bytes(payload, capn_message_length);
-            // utility::append_bytes(payload, fake_data);
-            // utility::append_bytes(payload, fake_data);
             payload.insert(payload.end(), bytes.begin(), bytes.end());
 
             //TODO send the message via socket
             connection->async_send(payload);
         }
     }) ;
+
 
     io_context.run();
     t1.join();
