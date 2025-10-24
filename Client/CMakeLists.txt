@@ -14,6 +14,7 @@ add_executable(client main.cpp
         ../src/daemoninfo.h
 )
 find_package(Boost 1.74.0 REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_package(CapnProto REQUIRED)
 
 get_property(imported_targets DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
@@ -48,6 +49,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Boost::boost
+        OpenSSL::Crypto
+        OpenSSL::SSL
         CapnProto::capnp
         CapnProto::kj
         fmt::fmt
