@@ -1,5 +1,6 @@
 #include <iostream>
 #include <boost/asio/io_context.hpp>
+#include <boost/asio/ssl.hpp>
 #include "fmtlog.h"
 #include "fmtlog-inl.h"
 #include "../src/connection.h"
@@ -17,6 +18,11 @@ int main()
     fmtlog::startPollingThread();
     logi("Starting Nomi-Nomi Client...");
     boost::asio::io_context io_context;
+
+    //create ssl steam
+    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_client);
+    ssl_context.set_default_verify_paths();
+    boost::asio::ssl::stream<tcp::socket> ssl_socket(io_context, ssl_context);
 
     //create socket connection to server and set callbacks
     const std::string address = "127.0.0.1";
