@@ -6,10 +6,10 @@
 
 #include "iconnection.h"
 
-class SSLConnection: public IConnection {
+class SSLConnection: public IConnection, public std::enable_shared_from_this<SSLConnection> {
 public:
     explicit SSLConnection(boost::asio::io_context& context, boost::asio::ssl::context ssl_context):
-        ssl_socket(context, ssl_context), _write_in_progress(false)
+        _ssl_socket(context, ssl_context), _write_in_progress(false)
     {
 
     }
@@ -23,7 +23,7 @@ public:
                        std::function<void(const boost::system::error_code&)> callback) override;
     void close() override;
 private:
-    boost::asio::ssl::stream<tcp::socket> ssl_socket;
+    boost::asio::ssl::stream<tcp::socket> _ssl_socket;
     bool _write_in_progress;
     boost::circular_buffer<char> _internal_buffer;
     std::vector<char> _packet_data;
