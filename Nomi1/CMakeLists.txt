@@ -20,6 +20,8 @@ add_executable(Nomi1 main.cpp
         ../src/daemoninfo.h
         ../src/sslconnection.cpp
         ../src/sslconnection.h
+        ../src/sslacceptor.cpp
+        ../src/sslacceptor.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
