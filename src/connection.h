@@ -12,6 +12,7 @@ public:
     }
     ~Connection() override = default;
     tcp::socket& get_socket() override;
+    bool on_accept() override;
     void set_receive_callback(std::function <void(std::shared_ptr<std::vector<char>>)> callback) override;
     void set_send_callback(std::function <void(const boost::system::error_code&)> callback) override;
     void open() override;

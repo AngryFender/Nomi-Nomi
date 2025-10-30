@@ -11,6 +11,7 @@ class IConnection
 public:
     virtual ~IConnection() = default;
     virtual tcp::socket& get_socket() = 0;
+    virtual bool on_accept() = 0;
     virtual void set_receive_callback(std::function <void(std::shared_ptr<std::vector<char>>)> callback) = 0;
     virtual void set_send_callback(std::function <void(const boost::system::error_code&)> callback) = 0;
     virtual void open() = 0;

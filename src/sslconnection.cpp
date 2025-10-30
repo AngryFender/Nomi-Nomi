@@ -6,6 +6,11 @@ tcp::socket& SSLConnection::get_socket()
 {
 }
 
+bool SSLConnection::on_accept()
+{
+    //TODO
+}
+
 void SSLConnection::set_receive_callback(std::function<void(std::shared_ptr<std::vector<char>>)> callback)
 {
     _receive_callback = callback;

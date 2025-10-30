@@ -8,6 +8,11 @@ tcp::socket& Connection::get_socket()
     return _socket;
 }
 
+bool Connection::on_accept()
+{
+    return true;
+}
+
 void Connection::set_receive_callback(std::function<void(std::shared_ptr<std::vector<char>>)> callback)
 {
     _receive_callback = callback;
