@@ -4,11 +4,20 @@
 
 tcp::socket& SSLConnection::get_socket()
 {
+    return _ssl_socket.next_layer();
 }
 
 bool SSLConnection::on_accept()
 {
-    //TODO
+    try
+    {
+        _ssl_socket.handshake(boost::asio::ssl::stream_base::server);
+    }
+    catch (const std::exception& ex)
+    {
+        return false;
+    }
+    return true;
 }
 
 void SSLConnection::set_receive_callback(std::function<void(std::shared_ptr<std::vector<char>>)> callback)

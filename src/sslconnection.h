@@ -8,7 +8,7 @@
 
 class SSLConnection: public IConnection, public std::enable_shared_from_this<SSLConnection> {
 public:
-    explicit SSLConnection(boost::asio::io_context& context, boost::asio::ssl::context ssl_context):
+    explicit SSLConnection(boost::asio::io_context& context, boost::asio::ssl::context& ssl_context):
         _ssl_socket(context, ssl_context), _write_in_progress(false)
     {
 
