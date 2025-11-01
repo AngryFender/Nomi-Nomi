@@ -8,6 +8,7 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
+#include "../src/sslconnection.h"
 #include "../src/utility/packetreader.h"
 
 constexpr int SERVER_PORT = 3491;
@@ -19,14 +20,20 @@ int main()
     logi("Starting Nomi-Nomi Client...");
     boost::asio::io_context io_context;
 
+    //create socket connection to server and set callbacks
+    const std::string address = "127.0.0.1";
+    boost::asio::ip::basic_endpoint<tcp> end_point(boost::asio::ip::address::from_string(address), SERVER_PORT);
+
     //create ssl steam
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_client);
     ssl_context.set_default_verify_paths();
     boost::asio::ssl::stream<tcp::socket> ssl_socket(io_context, ssl_context);
 
-    //create socket connection to server and set callbacks
-    const std::string address = "127.0.0.1";
-    boost::asio::ip::basic_endpoint<tcp> end_point(boost::asio::ip::address::from_string(address), SERVER_PORT);
+    auto ssl_connection = std::make_shared<SSLConnection>(io_context, ssl_context);
+    ssl_connection->async_connect(end_point, [address](const boost::system::error_code& error)
+    {
+        logi("Securely Connected to server @{}", address);
+    });
 
     auto connection = std::make_shared<Connection>(io_context);
     connection->async_connect(end_point, [address](const boost::system::error_code& err)
