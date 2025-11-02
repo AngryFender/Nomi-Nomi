@@ -19,8 +19,25 @@ int main()
 
     boost::asio::io_context io_context;
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_server);
-    //TODO set up certificates
-    ssl_context.set_default_verify_paths();
+
+    ssl_context.set_options(
+        boost::asio::ssl::context::default_workarounds |
+        boost::asio::ssl::context::no_sslv2 |
+        boost::asio::ssl::context::single_dh_use);
+
+    const char* ssl_path = std::getenv("SSL_PATH");
+    if(!ssl_path)
+    {
+        logi("SSL_PATH envirnoment variable not set");
+        return -1;
+    }
+
+    std::string cert_path = std::string(ssl_path) + "server.cert";
+    std::string key_path = std::string(ssl_path) + "server.key";
+
+    ssl_context.use_certificate_chain_file(cert_path);
+    ssl_context.use_private_key_file(key_path, boost::asio::ssl::context::pem);
+
     boost::asio::ssl::stream<tcp::socket> ssl_socket(io_context, ssl_context);
 
     auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, io_context, ssl_context, SERVER_LISTENING_PORT);
