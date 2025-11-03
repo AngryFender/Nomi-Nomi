@@ -1,4 +1,5 @@
 #include <boost/asio/io_context.hpp>
+#include <openssl/provider.h>
 #include "../src/daemoninfo.h"
 #include "../src/acceptor.h"
 #include "../src/manager.h"
@@ -18,11 +19,18 @@ int main()
     logi("Starting Nomi-Nomi server...");
 
     boost::asio::io_context io_context;
+
+    OSSL_PROVIDER_load(NULL, "default");
+    OSSL_PROVIDER_load(NULL, "legacy");
+
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_server);
 
     ssl_context.set_options(
         boost::asio::ssl::context::default_workarounds |
         boost::asio::ssl::context::no_sslv2 |
+        boost::asio::ssl::context::no_sslv3 |
+        boost::asio::ssl::context::no_tlsv1 |
+        boost::asio::ssl::context::no_tlsv1_1 |
         boost::asio::ssl::context::single_dh_use);
 
     const char* ssl_path = std::getenv("SSL_PATH");
@@ -37,8 +45,6 @@ int main()
 
     ssl_context.use_certificate_chain_file(cert_path);
     ssl_context.use_private_key_file(key_path, boost::asio::ssl::context::pem);
-
-    boost::asio::ssl::stream<tcp::socket> ssl_socket(io_context, ssl_context);
 
     auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, io_context, ssl_context, SERVER_LISTENING_PORT);
     auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::node, io_context, ssl_context, NODE_PORT);
