@@ -8,7 +8,7 @@
 class SSLAcceptor : public IAcceptor {
 public:
     SSLAcceptor(const daemon_type type, boost::asio::io_context& io_context, boost::asio::ssl::context& ssl_context, const boost::asio::ip::port_type port):
-        _type(type), _io_context(io_context),_ssl_context(_ssl_context), _port(port),
+        _type(type), _io_context(io_context),_ssl_context(ssl_context), _port(port),
         _acceptor(_io_context, tcp::endpoint(tcp::v4(), port))
     {}
     ~SSLAcceptor() override = default;

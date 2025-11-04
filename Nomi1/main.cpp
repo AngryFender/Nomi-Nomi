@@ -40,7 +40,7 @@ int main()
         return -1;
     }
 
-    std::string cert_path = std::string(ssl_path) + "server.cert";
+    std::string cert_path = std::string(ssl_path) + "server.crt";
     std::string key_path = std::string(ssl_path) + "server.key";
 
     ssl_context.use_certificate_chain_file(cert_path);
