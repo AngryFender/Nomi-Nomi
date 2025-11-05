@@ -1,4 +1,5 @@
 #include <iostream>
+#include <openssl/provider.h>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ssl.hpp>
 #include "fmtlog.h"
@@ -24,9 +25,20 @@ int main()
     const std::string address = "127.0.0.1";
     boost::asio::ip::basic_endpoint<tcp> end_point(boost::asio::ip::address::from_string(address), SERVER_PORT);
 
-    //create ssl steam
+    OSSL_PROVIDER_load(NULL, "default");
+    OSSL_PROVIDER_load(NULL, "legacy");
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_client);
-    ssl_context.set_default_verify_paths();
+    ssl_context.set_verify_mode(boost::asio::ssl::verify_peer);
+
+    const char* ssl_path = std::getenv("SSL_PATH");
+    if(!ssl_path)
+    {
+        logi("SSL_PATH envirnoment variable not set");
+        return -1;
+    }
+    std::string ca_path = std::string(ssl_path) + "server.crt";
+    ssl_context.load_verify_file(ca_path);
+
     boost::asio::ssl::stream<tcp::socket> ssl_socket(io_context, ssl_context);
 
     auto ssl_connection = std::make_shared<SSLConnection>(io_context, ssl_context);
