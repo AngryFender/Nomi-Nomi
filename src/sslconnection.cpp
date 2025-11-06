@@ -15,6 +15,7 @@ bool SSLConnection::on_accept()
     }
     catch (const std::exception& ex)
     {
+        loge("Error when ssl {}", ex.what());
         return false;
     }
     return true;

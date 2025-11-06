@@ -4,7 +4,6 @@
 #include <boost/asio/ssl.hpp>
 #include "fmtlog.h"
 #include "fmtlog-inl.h"
-#include "../src/connection.h"
 #include "message.capnp.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
@@ -47,13 +46,7 @@ int main()
         logi("Securely Connected to server @{}", address);
     });
 
-    auto connection = std::make_shared<Connection>(io_context);
-    connection->async_connect(end_point, [address](const boost::system::error_code& err)
-    {
-        logi("Connected to server @{}", address);
-    });
-
-    connection->set_receive_callback([address](std::shared_ptr<std::vector<char>> buffer)
+    ssl_connection->set_receive_callback([address](std::shared_ptr<std::vector<char>> buffer)
     {
         logi("Recieved message from {}", address);
         //TODO deserialise Cap'n Proto message
@@ -67,7 +60,7 @@ int main()
              msg.getUserid());
     });
 
-    connection->set_send_callback([address](const boost::system::error_code& err)
+    ssl_connection->set_send_callback([address](const boost::system::error_code& err)
     {
         if(err)
         {
@@ -75,8 +68,7 @@ int main()
         }
     });
 
-    auto work = boost::asio::make_work_guard(io_context);
-
+    auto work = make_work_guard(io_context);
 
     std::thread t1([&]()
     {
@@ -103,10 +95,9 @@ int main()
             payload.insert(payload.end(), bytes.begin(), bytes.end());
 
             //TODO send the message via socket
-            connection->async_send(payload);
+            ssl_connection->async_send(payload);
         }
     }) ;
-
 
     io_context.run();
     t1.join();

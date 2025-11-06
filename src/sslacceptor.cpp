@@ -13,11 +13,16 @@ void SSLAcceptor::open()
     logi("Listening ssl port{} server type {}" , _port, static_cast<int>(_type));
     _acceptor.async_accept( ssl_socket->get_socket(), [ ssl_socket, this](const boost::system::error_code& error)
     {
-        if (error || !ssl_socket->on_accept())
+        if (error)
         {
             loge("error while accepting incoming ssl connnection:  {}", error.message());
-            return;
         }
-        _accept_handler( ssl_socket);
+        else
+        {
+            if(ssl_socket->on_accept())
+            {
+                _accept_handler(ssl_socket);
+            }
+        }
         this->open();
     });}
