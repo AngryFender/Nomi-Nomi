@@ -9,6 +9,7 @@
 #include <capnp/serialize.h>
 
 #include "../src/sslconnection.h"
+#include "../src/utility/capnpreader.h"
 #include "../src/utility/packetreader.h"
 
 constexpr int SERVER_PORT = 3491;
@@ -32,10 +33,10 @@ int main()
     const char* ssl_path = std::getenv("SSL_PATH");
     if(!ssl_path)
     {
-        logi("SSL_PATH envirnoment variable not set");
+        logi("SSL_PATH environment variable not set");
         return -1;
     }
-    std::string ca_path = std::string(ssl_path) + "server.crt";
+    const std::string ca_path = std::string(ssl_path) + "server.crt";
     ssl_context.load_verify_file(ca_path);
 
     boost::asio::ssl::stream<tcp::socket> ssl_socket(io_context, ssl_context);
@@ -84,18 +85,8 @@ int main()
             builder.setUserid(100);
             builder.setResourceid(36);
 
-            kj::Array<capnp::word> words = capnp::messageToFlatArray(message);
-            kj::ArrayPtr<const capnp::word> view = words.asPtr();
-            kj::ArrayPtr<const unsigned char> bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(view.begin()),
-                                                                   view.size() * sizeof(capnp::word));
-            uint32_t capn_message_length = htonl(bytes.size());
-            std::vector<char> payload;
-            payload.reserve(sizeof(capn_message_length) + bytes.size());
-            utility::append_bytes(payload, capn_message_length);
-            payload.insert(payload.end(), bytes.begin(), bytes.end());
-
             //TODO send the message via socket
-            ssl_connection->async_send(payload);
+            ssl_connection->async_send(utility::serialise_message(message));
         }
     }) ;
 

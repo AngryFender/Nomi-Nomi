@@ -36,12 +36,12 @@ int main()
     const char* ssl_path = std::getenv("SSL_PATH");
     if(!ssl_path)
     {
-        logi("SSL_PATH envirnoment variable not set");
+        logi("SSL_PATH environment variable not set");
         return -1;
     }
 
-    std::string cert_path = std::string(ssl_path) + "server.crt";
-    std::string key_path = std::string(ssl_path) + "server.key";
+    const std::string cert_path = std::string(ssl_path) + "server.crt";
+    const std::string key_path = std::string(ssl_path) + "server.key";
 
     ssl_context.use_certificate_chain_file(cert_path);
     ssl_context.use_private_key_file(key_path, boost::asio::ssl::context::pem);
