@@ -6,17 +6,13 @@
 #include "packetreader.h"
 namespace utility
 {
-    inline bool deserialise_message(std::vector<char>& buffer, Message::Reader& msg)
+    inline Message::Reader deserialise_message(std::vector<char>& buffer)
     {
-        //convert to words
-        auto words = kj::arrayPtr(reinterpret_cast<const capnp::word*>(buffer.data()),buffer.size()/sizeof(capnp::word));
-
-        //construct a reader
-        capnp::FlatArrayMessageReader reader(words);
-        msg = reader.getRoot<Message>();
-
-        //todo return the deserialised message
-        return true;
+        const auto* raw = reinterpret_cast<const capnp::word*>(buffer.data());
+        size_t wordCount = buffer.size() / sizeof(capnp::word);
+        kj::ArrayPtr<const capnp::word> view(raw, wordCount);
+        capnp::FlatArrayMessageReader reader(view);
+        return reader.getRoot<Message>();
     }
 
     // convert capnp type message into std::vector<char>
