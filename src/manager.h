@@ -44,7 +44,7 @@ public:
                     if (_client_requests.try_dequeue(request))
                     {
                         Message::Reader msg;
-                        utility::deserialise_message(*request, msg);
+                        // utility::deserialise_message(*request, msg);
 
                         // //TODO do work after deserialising the message
                         // const auto* raw = reinterpret_cast<const capnp::word*>(request->data());
@@ -74,7 +74,7 @@ public:
                     if (_node_requests.try_dequeue(request))
                     {
                         Message::Reader msg;
-                        utility::deserialise_message(*request, msg);
+                        // utility::deserialise_message(*request, msg);
 
                         //TODO do work after deserialising the message
                     }
