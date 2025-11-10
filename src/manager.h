@@ -43,19 +43,12 @@ public:
                     std::shared_ptr<std::vector<char>> request;
                     if (_client_requests.try_dequeue(request))
                     {
-                        Message::Reader msg;
-                        // utility::deserialise_message(*request, msg);
+                        auto msg = utility::deserialise_message(*request);
+                        logi("message id:{}, resource id:{}, type: {}, userid: {} ", msg.getId(), msg.getResourceid(),
+                             msg.getType(),
+                             msg.getUserid());
 
                         // //TODO do work after deserialising the message
-                        // const auto* raw = reinterpret_cast<const capnp::word*>(request->data());
-                        // size_t wordCount = request->size() / sizeof(capnp::word);
-                        //
-                        // kj::ArrayPtr<const capnp::word> view(raw, wordCount);
-                        // capnp::FlatArrayMessageReader reader(view);
-                        // msg = reader.getRoot<Message>();
-                        // logi("message id:{}, resource id:{}, type: {}, userid: {} ", msg.getId(), msg.getResourceid(),
-                        //      msg.getType(),
-                        //      msg.getUserid());
                     }
                     else
                     {
