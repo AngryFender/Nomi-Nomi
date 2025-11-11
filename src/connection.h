@@ -10,6 +10,8 @@ public:
     {
 
     }
+    IConnection& operator=(const IConnection& connection) = delete ;
+    IConnection& operator=(IConnection&& connection) noexcept override ;
     ~Connection() override = default;
     tcp::socket& get_socket() override;
     bool on_accept() override;

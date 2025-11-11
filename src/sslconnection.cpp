@@ -2,6 +2,11 @@
 
 #include <fmtlog.h>
 
+IConnection& SSLConnection::operator=(IConnection&& connection) noexcept
+{
+    return *this;
+}
+
 tcp::socket& SSLConnection::get_socket()
 {
     return _ssl_socket.next_layer();

@@ -3,6 +3,11 @@
 #include "utility/capnpreader.h"
 #include "utility/packetreader.h"
 
+IConnection& Connection::operator=(IConnection&& connection) noexcept
+{
+    return *this;
+}
+
 tcp::socket& Connection::get_socket()
 {
     return _socket;
