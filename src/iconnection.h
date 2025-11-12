@@ -10,8 +10,8 @@ class IConnection
 {
 public:
     virtual ~IConnection() = default;
-    virtual IConnection& operator=(const IConnection& connection) = delete ;
-    virtual IConnection& operator=(IConnection&& connection) noexcept = 0 ;
+    virtual IConnection& operator=(const IConnection& other) = delete ;
+    virtual IConnection& operator=(IConnection&& other) noexcept = 0 ;
     virtual tcp::socket& get_socket() = 0;
     virtual bool on_accept() = 0;
     virtual void set_receive_callback(std::function <void(std::shared_ptr<std::vector<char>>)> callback) = 0;
