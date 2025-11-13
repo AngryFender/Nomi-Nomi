@@ -8,10 +8,11 @@ class Connection : public IConnection, public std::enable_shared_from_this<Conne
 public:
     explicit Connection(boost::asio::io_context& context): _socket(context),_write_in_progress(false)
     {
-
     }
-    IConnection& operator=(const IConnection& other) = delete ;
-    IConnection& operator=(IConnection&& other) noexcept override ;
+    Connection(const Connection& other) = delete;
+    Connection(Connection&& other) = delete;
+    IConnection& operator=(const IConnection& other) override = delete ;
+    IConnection& operator=(IConnection&& other) override = delete;
     ~Connection() override = default;
     tcp::socket& get_socket() override;
     bool on_accept() override;

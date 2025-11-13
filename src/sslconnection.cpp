@@ -1,23 +1,5 @@
 #include "sslconnection.h"
-
 #include <fmtlog.h>
-
-IConnection& SSLConnection::operator=(IConnection&& other) noexcept
-{
-    auto ssl_con = dynamic_cast<SSLConnection*>(&other);
-    if (ssl_con && this != ssl_con)
-    {
-        _ssl_socket = std::move(ssl_con->_ssl_socket);
-        _write_in_progress = ssl_con;
-        _internal_buffer = std::move(ssl_con->_internal_buffer);
-        _packet_data = std::move(_packet_data);
-        _temp_data = std::move(_temp_data);
-        _outbounds = std::move(_outbounds);
-        _send_callback = std::move(_send_callback);
-        _receive_callback = std::move(_receive_callback);
-    }
-    return *this;
-}
 
 tcp::socket& SSLConnection::get_socket()
 {

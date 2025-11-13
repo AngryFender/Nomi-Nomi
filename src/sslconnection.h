@@ -13,8 +13,10 @@ public:
     {
 
     }
+    SSLConnection(const SSLConnection& other ) = delete;
+    SSLConnection(SSLConnection&& other) = delete;
     IConnection& operator=(const IConnection& other) = delete ;
-    IConnection& operator=(IConnection&& other) noexcept override ;
+    IConnection& operator=(IConnection&& other) = delete  ;
     ~SSLConnection() override = default;
     tcp::socket& get_socket() override;
     bool on_accept() override;

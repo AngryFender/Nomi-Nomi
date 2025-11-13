@@ -3,23 +3,6 @@
 #include "utility/capnpreader.h"
 #include "utility/packetreader.h"
 
-IConnection& Connection::operator=(IConnection&& other) noexcept
-{
-    auto con = dynamic_cast<Connection*>(&other);
-    if (con && this != con)
-    {
-        _socket = std::move(con->_socket);
-        _write_in_progress = con;
-        _internal_buffer = std::move(con->_internal_buffer);
-        _packet_data = std::move(_packet_data);
-        _temp_data = std::move(_temp_data);
-        _outbounds = std::move(_outbounds);
-        _send_callback = std::move(_send_callback);
-        _receive_callback = std::move(_receive_callback);
-    }
-    return *this;
-}
-
 tcp::socket& Connection::get_socket()
 {
     return _socket;
