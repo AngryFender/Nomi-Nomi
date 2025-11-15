@@ -48,8 +48,8 @@ int main()
     ssl_context.use_certificate_chain_file(cert_path);
     ssl_context.use_private_key_file(key_path, boost::asio::ssl::context::pem);
 
-    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, io_context, ssl_context, SERVER1_LISTENING_PORT);
-    auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::node, io_context, ssl_context, NODE1_PORT);
+    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, io_context, ssl_context, SERVER2_LISTENING_PORT);
+    auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::node, io_context, ssl_context, NODE2_PORT);
 
     Manager manager(std::move(client_acceptor),std::move(node_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
     io_context.run();
