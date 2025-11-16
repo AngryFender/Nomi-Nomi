@@ -20,10 +20,11 @@ int main()
     fmtlog::startPollingThread();
     logi("Starting Nomi-Nomi server...");
 
-    boost::asio::io_context io_context;
+    boost::asio::io_context context_client;
+    boost::asio::io_context context_node;
 
-    OSSL_PROVIDER_load(NULL, "default");
-    OSSL_PROVIDER_load(NULL, "legacy");
+    OSSL_PROVIDER_load(nullptr, "default");
+    OSSL_PROVIDER_load(nullptr, "legacy");
 
     boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_server);
 
@@ -48,11 +49,22 @@ int main()
     ssl_context.use_certificate_chain_file(cert_path);
     ssl_context.use_private_key_file(key_path, boost::asio::ssl::context::pem);
 
-    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, io_context, ssl_context, SERVER1_LISTENING_PORT);
-    auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::node, io_context, ssl_context, NODE1_PORT);
+    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_context, SERVER1_LISTENING_PORT);
+    auto node_acceptor = std::make_unique<Acceptor>(daemon_type::node, context_node, NODE1_PORT);
 
     Manager manager(std::move(client_acceptor),std::move(node_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
-    io_context.run();
+
+    std::thread thread_client([&]()
+    {
+        context_client.run();
+    });
+    std::thread thread_node([&]()
+    {
+        context_node.run();
+    });
+
+    thread_client.join();
+    thread_node.join();
     fmtlog::stopPollingThread();
     return 0;
 }
