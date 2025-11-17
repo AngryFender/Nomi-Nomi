@@ -26,16 +26,6 @@ int main()
     OSSL_PROVIDER_load(nullptr, "default");
     OSSL_PROVIDER_load(nullptr, "legacy");
 
-    boost::asio::ssl::context ssl_context(boost::asio::ssl::context::tls_server);
-
-    ssl_context.set_options(
-        boost::asio::ssl::context::default_workarounds |
-        boost::asio::ssl::context::no_sslv2 |
-        boost::asio::ssl::context::no_sslv3 |
-        boost::asio::ssl::context::no_tlsv1 |
-        boost::asio::ssl::context::no_tlsv1_1 |
-        boost::asio::ssl::context::single_dh_use);
-
     const char* ssl_path = std::getenv("SSL_PATH");
     if(!ssl_path)
     {
@@ -45,12 +35,33 @@ int main()
 
     const std::string cert_path = std::string(ssl_path) + "server.crt";
     const std::string key_path = std::string(ssl_path) + "server.key";
+    const std::string cert_node_path = std::string(ssl_path) + "node.crt";
+    const std::string key_node_path = std::string(ssl_path) + "node.key";
 
-    ssl_context.use_certificate_chain_file(cert_path);
-    ssl_context.use_private_key_file(key_path, boost::asio::ssl::context::pem);
+    boost::asio::ssl::context ssl_server(boost::asio::ssl::context::tls_server);
+    ssl_server.set_options(
+        boost::asio::ssl::context::default_workarounds |
+        boost::asio::ssl::context::no_sslv2 |
+        boost::asio::ssl::context::no_sslv3 |
+        boost::asio::ssl::context::no_tlsv1 |
+        boost::asio::ssl::context::no_tlsv1_1 |
+        boost::asio::ssl::context::single_dh_use);
+    ssl_server.use_certificate_chain_file(cert_node_path);
+    ssl_server.use_private_key_file(key_node_path, boost::asio::ssl::context::pem);
 
-    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_context, SERVER2_LISTENING_PORT);
-    auto node_acceptor = std::make_unique<Acceptor>(daemon_type::node, context_node, NODE2_PORT);
+    boost::asio::ssl::context ssl_node(boost::asio::ssl::context::tls_server);
+    ssl_node.set_options(
+        boost::asio::ssl::context::default_workarounds |
+        boost::asio::ssl::context::no_sslv2 |
+        boost::asio::ssl::context::no_sslv3 |
+        boost::asio::ssl::context::no_tlsv1 |
+        boost::asio::ssl::context::no_tlsv1_1 |
+        boost::asio::ssl::context::single_dh_use);
+    ssl_node.use_certificate_chain_file(cert_path);
+    ssl_node.use_private_key_file(key_path, boost::asio::ssl::context::pem);
+
+    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_server, SERVER2_LISTENING_PORT);
+    auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_node, NODE2_PORT);
 
     Manager manager(std::move(client_acceptor),std::move(node_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
 
