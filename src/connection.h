@@ -16,7 +16,7 @@ public:
     ~Connection() override = default;
     tcp::socket& get_socket() override;
     bool on_accept() override;
-    void set_receive_callback(std::function <void(std::shared_ptr<std::vector<char>>)> callback) override;
+    void set_receive_callback(std::function <void(std::unique_ptr<std::vector<char>>)> callback) override;
     void set_send_callback(std::function <void(const boost::system::error_code&)> callback) override;
     void open() override;
     void async_send(const std::vector<char>& packet) override;
@@ -31,7 +31,7 @@ private:
     std::vector<char> _temp_data;
     std::queue<std::vector<char>> _outbounds;
     std::function <void(const boost::system::error_code&)> _send_callback;
-    std::function <void(std::shared_ptr<std::vector<char>>)> _receive_callback;
+    std::function <void(std::unique_ptr<std::vector<char>>)> _receive_callback;
 
     void start_async_send();
 };

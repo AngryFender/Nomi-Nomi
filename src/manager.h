@@ -105,8 +105,8 @@ private:
     std::unordered_map<std::string, std::shared_ptr<IConnection>> _node_connections;
     std::vector<std::thread> _client_threads;
     std::vector<std::thread> _node_threads;
-    moodycamel::ConcurrentQueue<std::shared_ptr<std::vector<char>>> _client_requests;
-    moodycamel::ConcurrentQueue<std::shared_ptr<std::vector<char>>> _node_requests;
+    moodycamel::ConcurrentQueue<std::unique_ptr<std::vector<char>>> _client_requests;
+    moodycamel::ConcurrentQueue<std::unique_ptr<std::vector<char>>> _node_requests;
 
 };
 

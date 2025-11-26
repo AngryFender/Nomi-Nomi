@@ -13,7 +13,7 @@ bool Connection::on_accept()
     return true;
 }
 
-void Connection::set_receive_callback(std::function<void(std::shared_ptr<std::vector<char>>)> callback)
+void Connection::set_receive_callback(std::function<void(std::unique_ptr<std::vector<char>>)> callback)
 {
     _receive_callback = callback;
 }
@@ -40,13 +40,13 @@ void Connection::open()
 
         // get the message length and create message buffer of the same length
         const uint32_t message_length = ntohl(*size_buffer);
-        auto message_buffer = std::make_shared<std::vector<char>>(message_length);
+        auto message_buffer = std::make_unique<std::vector<char>>(message_length);
 
         // read until the message buffer is filled
         async_read(self->_socket, boost::asio::buffer(*message_buffer),
-        [self, message_buffer](const boost::system::error_code& code, std::size_t size)
+        [self, &message_buffer](const boost::system::error_code& code, std::size_t size)
         {
-            self->_receive_callback(message_buffer);
+            self->_receive_callback(std::move(message_buffer));
             self->open();
         });
     });
