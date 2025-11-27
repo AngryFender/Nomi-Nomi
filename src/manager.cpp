@@ -13,7 +13,7 @@ void Manager::AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnecti
             return;
         }
         _client_connections[address_port] = socket;
-        socket->set_receive_callback([this, address_port](std::unique_ptr<std::vector<char>>&& buffer)
+        socket->set_receive_callback([this, address_port](std::unique_ptr<std::vector<char>> buffer)
         {
             if(!this->_client_requests.try_enqueue(std::move(buffer)))
             {
@@ -51,7 +51,7 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
     {
         _client_connections[address_port] = socket;
 
-        socket->set_receive_callback([this, address_port](std::unique_ptr<std::vector<char>>buffer)
+        socket->set_receive_callback([this, address_port](std::unique_ptr<std::vector<char>> buffer)
         {
             if (!this->_client_requests.try_enqueue(std::move(buffer)))
             {

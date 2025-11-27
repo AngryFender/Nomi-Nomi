@@ -12,8 +12,8 @@
 class Manager: public IManager {
 
 public:
-    explicit Manager(std::unique_ptr<IAcceptor>&& client_acceptor,
-        std::unique_ptr<IAcceptor>&& node_acceptor,
+    explicit Manager(std::unique_ptr<IAcceptor> client_acceptor,
+        std::unique_ptr<IAcceptor> node_acceptor,
         const int client_thread_max,
         const int node_thread_max): _client_acceptor(std::move(client_acceptor)),
                                     _node_acceptor(std::move(node_acceptor)),

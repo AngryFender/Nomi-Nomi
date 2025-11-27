@@ -15,8 +15,8 @@ public:
     }
     SSLConnection(const SSLConnection& other ) = delete;
     SSLConnection(SSLConnection&& other) = delete;
-    IConnection& operator=(const IConnection& other) = delete ;
-    IConnection& operator=(IConnection&& other) = delete  ;
+    IConnection& operator=(const IConnection& other) override = delete ;
+    IConnection& operator=(IConnection&& other) override = delete ;
     ~SSLConnection() override = default;
     tcp::socket& get_socket() override;
     bool on_accept() override;
