@@ -70,6 +70,18 @@ int main()
         while(true)
         {
             std::this_thread::sleep_for(std::chrono::seconds(5));
+
+            //TODO serialise message into cap'n proto message
+            capnp::MallocMessageBuilder message;
+            Message::Builder builder = message.initRoot<Message>();
+            builder.setId(69);
+            builder.setType(1);
+            builder.setUserid(100);
+            builder.setResourceid(36);
+
+            //TODO send the message via socket
+            ssl_connection->async_send(utility::serialise_message(message));
+
         }
     }) ;
 
