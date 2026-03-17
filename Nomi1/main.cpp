@@ -32,11 +32,14 @@ int main()
         logi("SSL_PATH environment variable not set");
         return -1;
     }
+
+    //TODO add config reader
     const std::string cert_path = std::string(ssl_path) + "server.crt";
     const std::string key_path = std::string(ssl_path) + "server.key";
     const std::string cert_node_path = std::string(ssl_path) + "node.crt";
     const std::string key_node_path = std::string(ssl_path) + "node.key";
 
+    //Abstract this to a builder
     boost::asio::ssl::context ssl_server(boost::asio::ssl::context::tls_server);
     ssl_server.set_options(
         boost::asio::ssl::context::default_workarounds |
@@ -58,6 +61,7 @@ int main()
         boost::asio::ssl::context::single_dh_use);
     ssl_node.use_certificate_chain_file(cert_path);
     ssl_node.use_private_key_file(key_path, boost::asio::ssl::context::pem);
+
 
     auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_server, SERVER1_LISTENING_PORT);
     auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_node, NODE1_PORT);
