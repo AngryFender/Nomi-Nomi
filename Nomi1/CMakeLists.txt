@@ -56,6 +56,8 @@ FetchContent_Declare(
         GIT_TAG       main
 )
 FetchContent_MakeAvailable(fmtlog)
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 # Add generated sources to the target
 target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
