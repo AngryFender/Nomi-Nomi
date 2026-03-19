@@ -14,6 +14,7 @@ add_executable(client main.cpp
         ../src/daemoninfo.h
         ../src/sslconnection.cpp
         ../src/sslconnection.h
+        ../src/utility/config.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
