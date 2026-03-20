@@ -27,6 +27,7 @@ add_executable(Nomi2 main.cpp
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(CapnProto REQUIRED)
+find_package(CLI11 CONFIG REQUIRED)
 
 get_property(imported_targets DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
 MESSAGE(STATUS "Imported targets ➜ ${imported_targets}")
@@ -58,7 +59,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmtlog)
 find_package(nlohmann_json CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 # Add generated sources to the target
 target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
@@ -69,10 +69,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${fmtlog_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    nlohmann_json::nlohmann_json
     Boost::boost
     OpenSSL::Crypto
     OpenSSL::SSL
     CapnProto::capnp
     CapnProto::kj
     fmt::fmt
+    CLI11::CLI11
 )
