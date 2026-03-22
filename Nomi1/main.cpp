@@ -9,6 +9,7 @@
 
 #include "fmtlog-inl.h"
 #include "../src/sslacceptor.h"
+#include "../src/utility/config.h"
 
 constexpr int SERVER1_LISTENING_PORT = 4500;
 constexpr int SERVER2_LISTENING_PORT = 4501;
@@ -24,8 +25,8 @@ int main(int argc, char* argv[])
     logi("Starting Nomi-Nomi server...");
 
     CLI::App app{"Nomi primary server"};
-    std::string config_file;
-    app.add_option("-c,--config", config_file, "Path to the configuration file")->required(true);
+    CLIArgs args;
+    app.add_option("-c,--config", args.config_path, "Path to the configuration file")->required(true);
     CLI11_PARSE(app, argc, argv);
 
     boost::asio::io_context context_client;
