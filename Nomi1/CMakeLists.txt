@@ -60,6 +60,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmtlog)
 find_package(nlohmann_json CONFIG REQUIRED)
 
+FetchContent_Declare(
+        tomlplusplus
+        GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+        GIT_TAG        v3.4.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
+
+
 # Add generated sources to the target
 target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
 
@@ -76,4 +84,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     CapnProto::kj
     fmt::fmt
     CLI11::CLI11
+    tomlplusplus::tomlplusplus
 )
