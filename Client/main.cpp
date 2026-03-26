@@ -7,6 +7,8 @@
 #include "message.capnp.h"
 #include <capnp/message.h>
 #include <capnp/serialize.h>
+#include <CLI/App.hpp>
+#include "../src/utility/config.h"
 
 #include "../src/sslconnection.h"
 #include "../src/utility/capnpreader.h"
@@ -14,12 +16,17 @@
 
 constexpr int SERVER_PORT = 3491;
 
-int main()
+int main(int argc, char* argv[])
 {
     fmtlog::setLogFile("/dev/stdout", false);
     fmtlog::startPollingThread();
     logi("Starting Nomi-Nomi Client...");
     boost::asio::io_context io_context;
+
+    CLI::App app{"Nomi primary server"};
+    CLIArgs args;
+    app.add_option("-c,--config", args.config_path, "Path to the configuration file")->required(true);
+    CLI11_PARSE(app, argc, argv);
 
     //create socket connection to server and set callbacks
     const std::string address = "127.0.0.1";

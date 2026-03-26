@@ -1,11 +1,16 @@
 #include <boost/asio/io_context.hpp>
 #include <openssl/provider.h>
+#include <CLI/CLI.hpp>
+#include <toml++/toml.hpp>
 #include "../src/daemoninfo.h"
 #include "../src/acceptor.h"
 #include "../src/manager.h"
 #include <fmtlog.h>
+#include <iostream>
+
 #include "fmtlog-inl.h"
 #include "../src/sslacceptor.h"
+#include "../src/utility/config.h"
 
 constexpr int SERVER1_LISTENING_PORT = 3491;
 constexpr int SERVER2_LISTENING_PORT = 3492;
@@ -14,11 +19,16 @@ constexpr int NODE1_PORT = 3498;
 constexpr int NODE2_PORT = 3499;
 constexpr int NODE_THREAD_MAX = 2;
 
-int main()
+int main(int argc, char* argv[])
 {
     fmtlog::setLogFile("/dev/stdout", false);
     fmtlog::startPollingThread();
     logi("Starting Nomi-Nomi server...");
+
+    CLI::App app{"Nomi primary server"};
+    CLIArgs args;
+    app.add_option("-c,--config", args.config_path, "Path to the configuration file")->required(true);
+    CLI11_PARSE(app, argc, argv);
 
     boost::asio::io_context context_client;
     boost::asio::io_context context_node;
