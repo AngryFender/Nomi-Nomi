@@ -3,14 +3,16 @@
 #include <optional>
 #include <string>
 
-struct ServerConfig
+struct Config
 {
+    std::string cert_path;
+    std::string key_path;
+    std::string cert_node_path;
+    std::string key_node_path;
     int primary_server_port{};
-    int primary_node{};
     int client_thread_max{};
     std::optional<int> standby_server_port;
-    std::optional<int> NODE2_PORT;
-    std::optional<int> NODE_THREAD_MAX;
+    std::optional<int> node_thread_max;
 };
 
 struct CLIArgs

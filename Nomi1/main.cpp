@@ -25,8 +25,12 @@ Config read_config(const std::string& config_path)
     auto config_file = toml::parse_file(config_path);
     config.cert_path = config_file["server"]["cert_path"].value_or("");
     config.key_path =  config_file["server"]["key_path"].value_or("");
+    config.primary_server_port = config_file["server"]["primary_server_port"].value_or(0);
+    config.standby_server_port = config_file["server"]["standy_server_port"].value_or(0);
+    config.client_thread_max = config_file["server"]["client_thread_max"].value_or(0);
     config.cert_node_path =  config_file["node"]["cert_path"].value_or("");
     config.key_node_path =  config_file["node"]["key_path"].value_or("");
+    config.node_thread_max = config_file["server"]["node_thread_max"].value_or(0);
     return config;
 }
 
