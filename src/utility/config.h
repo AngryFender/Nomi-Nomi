@@ -5,6 +5,7 @@
 
 struct Config
 {
+    std::string ssl_path;
     std::string cert_path;
     std::string key_path;
     std::string cert_node_path;

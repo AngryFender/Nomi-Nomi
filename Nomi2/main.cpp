@@ -23,6 +23,7 @@ Config read_config(const std::string& config_path)
 {
     Config config;
     auto config_file = toml::parse_file(config_path);
+    config.ssl_path = config_file["ssl"]["ssl_path"].value_or("");
     config.cert_path = config_file["server"]["cert_path"].value_or("");
     config.key_path =  config_file["server"]["key_path"].value_or("");
     config.primary_server_port = config_file["server"]["primary_server_port"].value_or(0);
@@ -53,8 +54,7 @@ int main(int argc, char* argv[])
     OSSL_PROVIDER_load(nullptr, "default");
     OSSL_PROVIDER_load(nullptr, "legacy");
 
-    const char* ssl_path = std::getenv("SSL_PATH");
-    if(!ssl_path)
+    if(config.ssl_path.empty())
     {
         logi("SSL_PATH environment variable not set");
         return -1;

@@ -23,6 +23,7 @@ Config read_config(const std::string& config_path)
 {
     Config config;
     auto config_file = toml::parse_file(config_path);
+    config.ssl_path = config_file["ssl"]["ssl_path"].value_or("");
     config.cert_path = config_file["server"]["cert_path"].value_or("");
     config.key_path =  config_file["server"]["key_path"].value_or("");
     config.primary_server_port = config_file["server"]["primary_server_port"].value_or(0);
@@ -72,7 +73,6 @@ int main(int argc, char* argv[])
         boost::asio::ssl::context::single_dh_use);
     ssl_node.use_certificate_chain_file(config.cert_path);
     ssl_node.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
-
 
     auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_server, SERVER1_LISTENING_PORT);
     auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_node, NODE1_PORT);
