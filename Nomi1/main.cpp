@@ -27,11 +27,11 @@ Config read_config(const std::string& config_path)
     config.cert_path = config_file["server"]["cert_path"].value_or("");
     config.key_path =  config_file["server"]["key_path"].value_or("");
     config.primary_server_port = config_file["server"]["primary_server_port"].value_or(0);
-    config.standby_server_port = config_file["server"]["standy_server_port"].value_or(0);
     config.client_thread_max = config_file["server"]["client_thread_max"].value_or(0);
     config.cert_node_path =  config_file["node"]["cert_path"].value_or("");
     config.key_node_path =  config_file["node"]["key_path"].value_or("");
-    config.node_thread_max = config_file["server"]["node_thread_max"].value_or(0);
+    config.standby_server_port = config_file["server"]["standy_server_port"].value_or(NULL);
+    config.node_thread_max = config_file["server"]["node_thread_max"].value_or(NULL);
     return config;
 }
 
@@ -75,7 +75,8 @@ int main(int argc, char* argv[])
     ssl_node.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
 
     auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_server, SERVER1_LISTENING_PORT);
-    auto node_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_node, NODE1_PORT);
+
+    auto node_acceptor = config.standby_server_port.value()?std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_node, config.standby_server_port.value_or(0)): nullptr;
 
     Manager manager(std::move(client_acceptor),std::move(node_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
 
