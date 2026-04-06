@@ -52,31 +52,31 @@ int main(int argc, char* argv[])
     boost::asio::io_context context_node;
     OSSL_PROVIDER_load(nullptr, "default");
     OSSL_PROVIDER_load(nullptr, "legacy");
-    boost::asio::ssl::context ssl_server(boost::asio::ssl::context::tls_server);
-    ssl_server.set_options(
+    boost::asio::ssl::context ctx_client(boost::asio::ssl::context::tls_server);
+    ctx_client.set_options(
         boost::asio::ssl::context::default_workarounds |
         boost::asio::ssl::context::no_sslv2 |
         boost::asio::ssl::context::no_sslv3 |
         boost::asio::ssl::context::no_tlsv1 |
         boost::asio::ssl::context::no_tlsv1_1 |
         boost::asio::ssl::context::single_dh_use);
-    ssl_server.use_certificate_chain_file(config.cert_path);
-    ssl_server.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
+    ctx_client.use_certificate_chain_file(config.cert_path);
+    ctx_client.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
 
-    boost::asio::ssl::context ssl_node(boost::asio::ssl::context::tls_server);
-    ssl_node.set_options(
+    boost::asio::ssl::context ctx_node(boost::asio::ssl::context::tls_server);
+    ctx_node.set_options(
         boost::asio::ssl::context::default_workarounds |
         boost::asio::ssl::context::no_sslv2 |
         boost::asio::ssl::context::no_sslv3 |
         boost::asio::ssl::context::no_tlsv1 |
         boost::asio::ssl::context::no_tlsv1_1 |
         boost::asio::ssl::context::single_dh_use);
-    ssl_node.use_certificate_chain_file(config.cert_path);
-    ssl_node.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
+    ctx_node.use_certificate_chain_file(config.cert_path);
+    ctx_node.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
 
-    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_server, SERVER1_LISTENING_PORT);
+    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ctx_client, SERVER1_LISTENING_PORT);
 
-    auto node_acceptor = config.standby_server_port.value()?std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ssl_node, config.standby_server_port.value_or(0)): nullptr;
+    auto node_acceptor = config.standby_server_port.value()?std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ctx_node, config.standby_server_port.value_or(0)): nullptr;
 
     Manager manager(std::move(client_acceptor),std::move(node_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
 
