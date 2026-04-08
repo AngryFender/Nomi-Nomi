@@ -24,14 +24,14 @@ Config read_config(const std::string& config_path)
     Config config;
     auto config_file = toml::parse_file(config_path);
     config.ssl_path = config_file["ssl"]["ssl_path"].value_or("");
-    config.cert_path = config_file["server"]["cert_path"].value_or("");
-    config.key_path =  config_file["server"]["key_path"].value_or("");
-    config.primary_server_port = config_file["server"]["primary_server_port"].value_or(0);
-    config.client_thread_max = config_file["server"]["client_thread_max"].value_or(0);
-    config.cert_node_path =  config_file["node"]["cert_path"].value_or("");
-    config.key_node_path =  config_file["node"]["key_path"].value_or("");
-    config.standby_server_port = config_file["server"]["standy_server_port"].value_or(NULL);
-    config.node_thread_max = config_file["server"]["node_thread_max"].value_or(NULL);
+    config.primary_cert_path = config_file["primary"]["cert_path"].value_or("");
+    config.primary_key_path =  config_file["primary"]["key_path"].value_or("");
+    config.primary_server_port = config_file["primary"]["server_port"].value_or(0);
+    config.client_thread_max = config_file["primary"]["client_thread_max"].value_or(0);
+    config.standby_cert_path =  config_file["standby"]["cert_path"].value_or("");
+    config.standby_key_path =  config_file["standby"]["key_path"].value_or("");
+    config.standby_server_port = config_file["primary"]["server_port"].value_or(NULL);
+    config.standby_thread_max = config_file["primary"]["standby_thread_max"].value_or(NULL);
     return config;
 }
 
@@ -59,8 +59,8 @@ int main(int argc, char* argv[])
         boost::asio::ssl::context::no_tlsv1 |
         boost::asio::ssl::context::no_tlsv1_1 |
         boost::asio::ssl::context::single_dh_use);
-    ctx_server.use_certificate_chain_file(config.cert_path);
-    ctx_server.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
+    ctx_server.use_certificate_chain_file(config.primary_cert_path);
+    ctx_server.use_private_key_file(config.primary_key_path, boost::asio::ssl::context::pem);
 
     boost::asio::ssl::context ctx_node(boost::asio::ssl::context::tls_server);
     ctx_node.set_options(
@@ -70,8 +70,8 @@ int main(int argc, char* argv[])
         boost::asio::ssl::context::no_tlsv1 |
         boost::asio::ssl::context::no_tlsv1_1 |
         boost::asio::ssl::context::single_dh_use);
-    ctx_node.use_certificate_chain_file(config.cert_path);
-    ctx_node.use_private_key_file(config.key_path, boost::asio::ssl::context::pem);
+    ctx_node.use_certificate_chain_file(config.primary_cert_path);
+    ctx_node.use_private_key_file(config.primary_key_path, boost::asio::ssl::context::pem);
 
     auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ctx_server, SERVER1_LISTENING_PORT);
 

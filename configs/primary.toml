@@ -1,5 +1,8 @@
 [ssl]
 
 [primary]
-
+cert_path = "../ssl/primary.crt"
+key_path = "../ssl/primary.key"
 [standy]
+cert_path = "../ssl/standby.crt"
+key_path = "../ssl/standby.key"

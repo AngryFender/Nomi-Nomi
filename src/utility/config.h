@@ -6,14 +6,14 @@
 struct Config
 {
     std::string ssl_path;
-    std::string cert_path;
-    std::string key_path;
-    std::string cert_node_path;
-    std::string key_node_path;
+    std::string primary_cert_path;
+    std::string primary_key_path;
+    std::string standby_cert_path;
+    std::string standby_key_path;
     int primary_server_port{};
     int client_thread_max{};
     std::optional<int> standby_server_port;
-    std::optional<int> node_thread_max;
+    std::optional<int> standby_thread_max;
 };
 
 struct CLIArgs
