@@ -35,6 +35,21 @@ Config read_config(const std::string& config_path)
     return config;
 }
 
+boost::asio::ssl::context create_ssl_context(const std::string& cert_path, const std::string& key_path)
+{
+    boost::asio::ssl::context ctx(boost::asio::ssl::context::tls_server);
+    ctx.set_options(
+        boost::asio::ssl::context::default_workarounds |
+        boost::asio::ssl::context::no_sslv2 |
+        boost::asio::ssl::context::no_sslv3 |
+        boost::asio::ssl::context::no_tlsv1 |
+        boost::asio::ssl::context::no_tlsv1_1 |
+        boost::asio::ssl::context::single_dh_use);
+    ctx.use_certificate_chain_file(cert_path);
+    ctx.use_private_key_file(key_path, boost::asio::ssl::context::pem);
+    return ctx;
+}
+
 int main(int argc, char* argv[])
 {
     fmtlog::setLogFile("/dev/stdout", false);
@@ -48,44 +63,27 @@ int main(int argc, char* argv[])
 
     Config config = read_config(args.config_path);
 
-    boost::asio::io_context context_client;
-    boost::asio::io_context context_node;
+    boost::asio::io_context context_primary;
+    boost::asio::io_context context_standby;
     OSSL_PROVIDER_load(nullptr, "default");
-    boost::asio::ssl::context ctx_server(boost::asio::ssl::context::tls_server);
-    ctx_server.set_options(
-        boost::asio::ssl::context::default_workarounds |
-        boost::asio::ssl::context::no_sslv2 |
-        boost::asio::ssl::context::no_sslv3 |
-        boost::asio::ssl::context::no_tlsv1 |
-        boost::asio::ssl::context::no_tlsv1_1 |
-        boost::asio::ssl::context::single_dh_use);
-    ctx_server.use_certificate_chain_file(config.primary_cert_path);
-    ctx_server.use_private_key_file(config.primary_key_path, boost::asio::ssl::context::pem);
+    auto ctx_primary = create_ssl_context(config.primary_cert_path, config.primary_key_path);
+    auto ctx_standby = create_ssl_context(config.standby_cert_path, config.standby_key_path);
 
-    boost::asio::ssl::context ctx_node(boost::asio::ssl::context::tls_server);
-    ctx_node.set_options(
-        boost::asio::ssl::context::default_workarounds |
-        boost::asio::ssl::context::no_sslv2 |
-        boost::asio::ssl::context::no_sslv3 |
-        boost::asio::ssl::context::no_tlsv1 |
-        boost::asio::ssl::context::no_tlsv1_1 |
-        boost::asio::ssl::context::single_dh_use);
-    ctx_node.use_certificate_chain_file(config.primary_cert_path);
-    ctx_node.use_private_key_file(config.primary_key_path, boost::asio::ssl::context::pem);
+    auto primary_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_primary, ctx_primary, SERVER1_LISTENING_PORT);
+    auto standby_acceptor = config.standby_server_port.value()
+                                ? std::make_unique<SSLAcceptor>(daemon_type::client, context_primary, ctx_standby,
+                                                                config.standby_server_port.value_or(0))
+                                : nullptr;
 
-    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ctx_server, SERVER1_LISTENING_PORT);
-
-    auto node_acceptor = config.standby_server_port.value()?std::make_unique<SSLAcceptor>(daemon_type::client, context_client, ctx_node, config.standby_server_port.value_or(0)): nullptr;
-
-    Manager manager(std::move(client_acceptor),std::move(node_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
+    Manager manager(std::move(primary_acceptor),std::move(standby_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
 
     std::thread thread_client([&]()
     {
-        context_client.run();
+        context_primary.run();
     });
     std::thread thread_node([&]()
     {
-        context_node.run();
+        context_standby.run();
     });
 
     thread_client.join();
