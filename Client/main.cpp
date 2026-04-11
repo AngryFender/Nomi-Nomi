@@ -8,6 +8,8 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <CLI/App.hpp>
+#include <toml++/impl/parser.inl>
+
 #include "../src/utility/config.h"
 
 #include "../src/sslconnection.h"
@@ -16,6 +18,18 @@
 
 constexpr int SERVER_PORT = 3491;
 
+ClientConfig read_config(const std::string& config_path)
+{
+    ClientConfig config;
+    auto config_file = toml::parse_file(config_path);
+    config.ssl_path = config_file["ssl"]["ssl_path"].value_or("");
+    config.primary_address = config_file["primary"]["address"].value_or("");
+    config.primary_port =  config_file["primary"]["port"].value_or(0);
+    config.secondary_address = config_file["secondary"]["address"].value_or("");
+    config.secondary_port =  config_file["secondary"]["port"].value_or(0);
+    return config;
+}
+
 int main(int argc, char* argv[])
 {
     fmtlog::setLogFile("/dev/stdout", false);
@@ -23,13 +37,14 @@ int main(int argc, char* argv[])
     logi("Starting Nomi-Nomi Client...");
     boost::asio::io_context io_context;
 
-    CLI::App app{"Nomi primary server"};
+    CLI::App app{"Nomi client"};
     CLIArgs args;
     app.add_option("-c,--config", args.config_path, "Path to the configuration file")->required(true);
     CLI11_PARSE(app, argc, argv);
+    ClientConfig config = read_config(args.config_path);
 
     //create socket connection to server and set callbacks
-    const std::string address = "127.0.0.1";
+    const std::string address = config.primary_address;
     boost::asio::ip::basic_endpoint<tcp> end_point(boost::asio::ip::address::from_string(address), SERVER_PORT);
 
     OSSL_PROVIDER_load(NULL, "default");
