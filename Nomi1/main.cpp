@@ -23,7 +23,6 @@ Config read_config(const std::string& config_path)
 {
     Config config;
     auto config_file = toml::parse_file(config_path);
-    config.ssl_path = config_file["ssl"]["ssl_path"].value_or("");
     config.primary_cert_path = config_file["primary"]["cert_path"].value_or("");
     config.primary_key_path =  config_file["primary"]["key_path"].value_or("");
     config.primary_server_port = config_file["primary"]["server_port"].value_or(0);
@@ -56,12 +55,11 @@ int main(int argc, char* argv[])
     fmtlog::startPollingThread();
     logi("Starting Nomi-Nomi server...");
 
-    CLI::App app{"Nomi primary server"};
+    CLI::App app{"Nomi server"};
     CLIArgs args;
     app.add_option("-c,--config", args.config_path, "Path to the configuration file")->required(true);
     CLI11_PARSE(app, argc, argv);
-
-    Config config = read_config(args.config_path);
+    const Config config = read_config(args.config_path);
 
     boost::asio::io_context context_primary;
     boost::asio::io_context context_standby;
