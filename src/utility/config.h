@@ -3,9 +3,18 @@
 #include <optional>
 #include <string>
 
-struct Config
+struct ClientConfig
 {
     std::string ssl_path;
+    std::string primary_address;
+    int primary_port{};
+    std::string secondary_address;
+    int secondary_port{};
+};
+
+
+struct Config
+{
     std::string primary_cert_path;
     std::string primary_key_path;
     std::string standby_cert_path;
