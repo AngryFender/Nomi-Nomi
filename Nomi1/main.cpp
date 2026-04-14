@@ -23,14 +23,13 @@ Config read_config(const std::string& config_path)
 {
     Config config;
     auto config_file = toml::parse_file(config_path);
-    config.primary_cert_path = config_file["primary"]["cert_path"].value_or("");
-    config.primary_key_path =  config_file["primary"]["key_path"].value_or("");
-    config.primary_server_port = config_file["primary"]["server_port"].value_or(0);
-    config.client_thread_max = config_file["primary"]["client_thread_max"].value_or(0);
-    config.standby_cert_path =  config_file["standby"]["cert_path"].value_or("");
-    config.standby_key_path =  config_file["standby"]["key_path"].value_or("");
-    config.standby_server_port = config_file["primary"]["server_port"].value_or(NULL);
-    config.standby_thread_max = config_file["primary"]["standby_thread_max"].value_or(NULL);
+    config.cert_path = config_file["server"]["cert_path"].value_or("");
+    config.key_path =  config_file["server"]["key_path"].value_or("");
+    config.server_type = config_file["server"]["server_type"].value_or(0);
+    config.server_port = config_file["server"]["server_port"].value_or(0);
+    config.client_thread_max = config_file["server"]["client_thread_max"].value_or(0);
+    config.node_port = config_file["node"]["node_port"].value_or(0);
+    config.node_thread_max = config_file["node"]["thread_max"].value_or(0);
     return config;
 }
 
