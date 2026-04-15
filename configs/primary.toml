@@ -1,8 +1,6 @@
-[ssl]
-
-[primary]
-cert_path = "../ssl/primary.crt"
-key_path = "../ssl/primary.key"
-[standy]
-cert_path = "../ssl/standby.crt"
-key_path = "../ssl/standby.key"
+[server]
+cert_path = "../../ssl/primary.crt"
+key_path = "../../ssl/primary.key"
+server_type = "primary"
+server_port = 4500
+client_thread_max = 2
