@@ -1,0 +1,7 @@
+[ssl]
+self_signed_crt_path = "../../ssl/server.crt"
+
+[server]
+address = "127.0.0.1"
+port = 3491
+
