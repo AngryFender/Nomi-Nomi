@@ -5,11 +5,11 @@
 
 struct ClientConfig
 {
-    std::string ssl_path;
-    std::string primary_address;
-    int primary_port{};
-    std::string secondary_address;
-    int secondary_port{};
+    std::string self_signed_crt_path;
+    std::string server_address;
+    int server_port{};
+    std::optional<std::string> standby_address;
+    std::optional<int> standby_port{};
 };
 
 
