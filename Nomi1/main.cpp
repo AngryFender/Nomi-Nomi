@@ -19,17 +19,29 @@ constexpr int NODE1_PORT = 3500;
 constexpr int NODE2_PORT = 3501;
 constexpr int NODE_THREAD_MAX = 2;
 
-Config read_config(const std::string& config_path)
+std::optional<Config> read_config(std::string_view config_path)
 {
+    toml::table config_file;
+    try
+    {
+        config_file = toml::parse_file(config_path);
+    }
+    catch (toml::parse_error& e)
+    {
+        logi("Config file parsing error: {}", e.what());
+        return std::nullopt;
+    }
+
     Config config;
-    auto config_file = toml::parse_file(config_path);
-    config.cert_path = config_file["server"]["cert_path"].value_or("");
-    config.key_path =  config_file["server"]["key_path"].value_or("");
-    config.server_type = config_file["server"]["server_type"].value_or(0);
-    config.server_port = config_file["server"]["server_port"].value_or(0);
-    config.client_thread_max = config_file["server"]["client_thread_max"].value_or(0);
-    config.node_port = config_file["node"]["node_port"].value_or(0);
-    config.node_thread_max = config_file["node"]["thread_max"].value_or(0);
+    config.server_cert_path = config_file["server"]["cert_path"].value_or("");
+    config.server_key_path = config_file["server"]["key_path"].value_or("");
+    config.type = config_file["server"]["type"].value_or(1);
+    config.server_port = config_file["server"]["port"].value_or(0);
+    config.server_threads = config_file["server"]["server_threads"].value_or(0);
+    config.standby_address = config_file["standby"]["address"].value<std::string>();
+    config.standby_port = config_file["standby"]["port"].value<int>();
+    config.standby_threads = config_file["standby"]["thread_max"].value<int>();
+    config.is_standby_configured = config.standby_cert_path && config.standby_address && config.standby_port;
     return config;
 }
 
@@ -58,25 +70,42 @@ int main(int argc, char* argv[])
     CLIArgs args;
     app.add_option("-c,--config", args.config_path, "Path to the configuration file")->required(true);
     CLI11_PARSE(app, argc, argv);
-    const Config config = read_config(args.config_path);
+    const std::optional<Config> config = read_config(args.config_path);
+    if(!config)
+    {
+        return -1;
+    }
 
-    boost::asio::io_context context_primary;
-    boost::asio::io_context context_standby;
     OSSL_PROVIDER_load(nullptr, "default");
-    auto ctx_primary = create_ssl_context(config.primary_cert_path, config.primary_key_path);
-    auto ctx_standby = create_ssl_context(config.standby_cert_path, config.standby_key_path);
 
-    auto primary_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client, context_primary, ctx_primary, SERVER1_LISTENING_PORT);
-    auto standby_acceptor = config.standby_server_port.value()
-                                ? std::make_unique<SSLAcceptor>(daemon_type::client, context_primary, ctx_standby,
-                                                                config.standby_server_port.value_or(0))
-                                : nullptr;
+    auto ctx_server = create_ssl_context(config->server_cert_path,
+                                                config->server_key_path);
 
-    Manager manager(std::move(primary_acceptor),std::move(standby_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
+    boost::asio::io_context context_server;
+    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
+                                                         context_server,
+                                                         ctx_server,
+                                                         SERVER1_LISTENING_PORT);
+    std::unique_ptr<SSLAcceptor> standby_acceptor;
+    boost::asio::io_context context_standby;
+    if (config->type && config->is_standby_configured)
+    {
+        auto ctx_standby = create_ssl_context(config->server_cert_path,
+                                              config->server_key_path);
+
+        standby_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
+                                                              context_server,
+                                                              ctx_standby,
+                                                              config->standby_port.value_or(0));
+
+
+    }
+
+    Manager manager(std::move(client_acceptor),std::move(standby_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
 
     std::thread thread_client([&]()
     {
-        context_primary.run();
+        context_server.run();
     });
     std::thread thread_node([&]()
     {

@@ -15,13 +15,17 @@ struct ClientConfig
 
 struct Config
 {
-    std::string cert_path;
-    std::string key_path;
-    int server_type;
+    std::string server_cert_path;
+    std::string server_key_path;
+    int type{1};
+    std::string server_address{};
     int server_port{};
-    int client_thread_max{};
-    int node_port{};
-    int node_thread_max{};
+    int server_threads{};
+    std::optional<std::string> standby_cert_path;
+    std::optional<std::string> standby_address;
+    std::optional<int> standby_port{};
+    std::optional<int> standby_threads{};
+    bool is_standby_configured{false};
 };
 
 struct CLIArgs

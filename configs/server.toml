@@ -1,0 +1,6 @@
+[server]
+cert_path = "../../ssl/server.crt"
+key_path = "../../ssl/server.key"
+type = 1
+server_port = 4500
+server_threads = 2
