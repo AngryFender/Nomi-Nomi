@@ -12,20 +12,24 @@ struct ClientConfig
     std::optional<int> standby_port{};
 };
 
+struct MachineInfo
+{
+    std::string cert_path;
+    std::string key_path;
+    std::string address;
+    int port{0};
+    int threads_max{0};
+};
 
 struct Config
 {
     std::string server_cert_path;
     std::string server_key_path;
     int type{1};
-    std::string server_address{};
-    int server_port{};
-    int server_threads{};
-    std::optional<std::string> standby_cert_path;
-    std::optional<std::string> standby_address;
-    std::optional<int> standby_port{};
-    std::optional<int> standby_threads{};
+    std::string alias{};
     bool is_standby_configured{false};
+    MachineInfo server;
+    MachineInfo standby;
 };
 
 struct CLIArgs
