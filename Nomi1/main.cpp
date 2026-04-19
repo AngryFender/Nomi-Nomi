@@ -3,7 +3,6 @@
 #include <CLI/CLI.hpp>
 #include <toml++/toml.hpp>
 #include "../src/daemoninfo.h"
-#include "../src/acceptor.h"
 #include "../src/manager.h"
 #include <fmtlog.h>
 #include <iostream>
@@ -26,22 +25,36 @@ std::optional<Config> read_config(std::string_view config_path)
     {
         config_file = toml::parse_file(config_path);
     }
-    catch (toml::parse_error& e)
+    catch (const toml::parse_error& e)
     {
         logi("Config file parsing error: {}", e.what());
         return std::nullopt;
     }
 
     Config config;
-    config.server_cert_path = config_file["server"]["cert_path"].value_or("");
-    config.server_key_path = config_file["server"]["key_path"].value_or("");
-    config.type = config_file["server"]["type"].value_or(1);
-    config.server_port = config_file["server"]["port"].value_or(0);
-    config.server_threads = config_file["server"]["server_threads"].value_or(0);
-    config.standby_address = config_file["standby"]["address"].value<std::string>();
-    config.standby_port = config_file["standby"]["port"].value<int>();
-    config.standby_threads = config_file["standby"]["thread_max"].value<int>();
-    config.is_standby_configured = config.standby_cert_path && config.standby_address && config.standby_port;
+    config.type = config_file["general"]["type"].value_or(1);
+    config.server.cert_path = config_file["server"]["cert_path"].value_or("");
+    config.server.key_path = config_file["server"]["key_path"].value_or("");
+    config.server.port = config_file["server"]["port"].value_or(0);
+    config.server.threads_max = config_file["server"]["threads_max"].value_or(0);
+
+    auto standby_cert_path =config_file["standby"]["cert_path"].value<std::string>();
+    auto standby_key_path =config_file["standby"]["key_path"].value<std::string>();
+    auto standby_address = config_file["standby"]["address"].value<std::string>();
+    auto standby_port = config_file["standby"]["port"].value<int>();
+    auto standby_threads_max = config_file["standby"]["thread_max"].value<int>();
+
+    if (standby_cert_path.has_value() && standby_key_path.has_value() && standby_address.has_value() && standby_port.
+        has_value() && standby_threads_max.has_value())
+    {
+        config.standby = MachineInfo{
+            standby_cert_path.value(),
+            standby_key_path.value(),
+            standby_address.value(),
+            standby_port.value(),
+            standby_threads_max.has_value()
+        };
+    }
     return config;
 }
 
@@ -78,8 +91,8 @@ int main(int argc, char* argv[])
 
     OSSL_PROVIDER_load(nullptr, "default");
 
-    auto ctx_server = create_ssl_context(config->server_cert_path,
-                                                config->server_key_path);
+    auto ctx_server = create_ssl_context(config->server.cert_path,
+                                                config->server.key_path);
 
     boost::asio::io_context context_server;
     auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
@@ -88,15 +101,15 @@ int main(int argc, char* argv[])
                                                          SERVER1_LISTENING_PORT);
     std::unique_ptr<SSLAcceptor> standby_acceptor;
     boost::asio::io_context context_standby;
-    if (config->type && config->is_standby_configured)
+    if (config->type && config->standby.has_value())
     {
-        auto ctx_standby = create_ssl_context(config->server_cert_path,
-                                              config->server_key_path);
+        auto ctx_standby = create_ssl_context(config->standby->cert_path,
+                                              config->standby->key_path);
 
         standby_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
                                                               context_server,
                                                               ctx_standby,
-                                                              config->standby_port.value_or(0));
+                                                              config->standby->port);
 
 
     }

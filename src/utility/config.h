@@ -23,13 +23,10 @@ struct MachineInfo
 
 struct Config
 {
-    std::string server_cert_path;
-    std::string server_key_path;
     int type{1};
     std::string alias{};
-    bool is_standby_configured{false};
     MachineInfo server;
-    MachineInfo standby;
+    std::optional<MachineInfo> standby;
 };
 
 struct CLIArgs
