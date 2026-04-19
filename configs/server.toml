@@ -1,6 +1,14 @@
+[general]
+alias = "System A"
+type = 1
 [server]
 cert_path = "../../ssl/server.crt"
 key_path = "../../ssl/server.key"
-type = 1
-server_port = 4500
-server_threads = 2
+port = 4500
+threads_max = 2
+[standby]
+cert_path = "../../ssl/standby.crt"
+key_path = "../../ssl/standby.key"
+address = "127.0.0.1"
+port = 4501
+threads_max = 2
