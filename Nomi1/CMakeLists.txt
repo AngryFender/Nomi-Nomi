@@ -26,6 +26,7 @@ add_executable(Nomi1 main.cpp
         ../src/iconnector.h
         ../src/connector.cpp
         ../src/connector.h
+        ../src/itimer.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
