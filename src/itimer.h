@@ -5,7 +5,7 @@
 class ITimer
 {
 public:
-    ~ITimer() = default;
+    virtual ~ITimer() = default;
     virtual void start() = 0;
     virtual void stop() = 0;
     virtual void cancel() = 0;
