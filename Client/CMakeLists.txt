@@ -17,8 +17,8 @@ add_executable(client main.cpp
         ../src/utility/config.h
         ../src/iconnector.h
         ../src/itimer.h
-        ../Nomi1/timer.cpp
-        ../Nomi1/timer.h
+        ../src/timer.cpp
+        ../src/timer.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
