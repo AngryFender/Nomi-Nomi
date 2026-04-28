@@ -19,6 +19,8 @@ add_executable(client main.cpp
         ../src/itimer.h
         ../src/timer.cpp
         ../src/timer.h
+        ../src/repeattimer.cpp
+        ../src/repeattimer.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
