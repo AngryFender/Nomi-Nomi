@@ -1,29 +1,31 @@
 #ifndef CONNECTOR_H
 #define CONNECTOR_H
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/ip/basic_endpoint.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/ssl/stream.hpp>
-
+#include "iconnection.h"
 #include "iconnector.h"
-#include "sslconnection.h"
-#include "../src/iconnection.h"
+#include "itimer.h"
 
-class Connector:public IConnector {
+class Connector : public IConnector
+{
 public:
-    Connector(boost::asio::io_context& io_context,
-        boost::asio::ssl::context& ssl_context):
-        _ssl_connection(std::make_shared<SSLConnection>( io_context, ssl_context))
-    {
-        _ssl_connection = std::make_shared<SSLConnection>(io_context, ssl_context);
-    }
+    Connector(const std::shared_ptr<IConnection>& connection,
+              std::unique_ptr<ITimer> timer,
+              std::unique_ptr<ITimer> repeat_timer
+    ): ssl_connection_(connection),
+       timer_(std::move(timer)),
+       repeat_timer_(std::move(repeat_timer))
+    { }
+
     bool start() override
     {
         //TODO
         return false;
     }
+
 private:
-    std::shared_ptr<IConnection> _ssl_connection;
+    std::shared_ptr<IConnection> ssl_connection_;
+    std::unique_ptr<ITimer> timer_;
+    std::unique_ptr<ITimer> repeat_timer_;
+
 
 };
 
