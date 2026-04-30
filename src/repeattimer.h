@@ -5,7 +5,7 @@
 
 #include "itimer.h"
 
-class RepeatTimer: public ITimer {
+class RepeatTimer: public ITimer, public std::enable_shared_from_this<RepeatTimer> {
 public:
     RepeatTimer(boost::asio::io_context& io_context, boost::asio::chrono::seconds period): timer_(io_context), period_(period)
     {

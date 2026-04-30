@@ -2,12 +2,13 @@
 
 void RepeatTimer::start()
 {
-    timer_.expires_after(period_);
+    timer_.expires_at(timer_.expiry() + period_);
     if(callback_)
     {
-        timer_.async_wait([this](const boost::system::error_code& error)
+        auto self = shared_from_this();
+        timer_.async_wait([self](const boost::system::error_code& error)
         {
-            internal_callback(error);
+            self->internal_callback(error);
         });
     }
 }
