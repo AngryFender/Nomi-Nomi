@@ -23,8 +23,8 @@ public:
 
 private:
     std::shared_ptr<IConnection> ssl_connection_;
-    std::unique_ptr<ITimer> timer_;
-    std::unique_ptr<ITimer> repeat_timer_;
+    std::shared_ptr<ITimer> timer_;
+    std::shared_ptr<ITimer> repeat_timer_;
 
 
 };
