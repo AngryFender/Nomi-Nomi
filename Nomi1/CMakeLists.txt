@@ -26,11 +26,11 @@ add_executable(Nomi1 main.cpp
         ../src/iconnector.h
         ../src/connector.cpp
         ../src/connector.h
-        ../src/itimer.h
-        ../src/timer.cpp
-        ../src/timer.h
-        ../src/repeattimer.cpp
-        ../src/repeattimer.h
+#        ../src/itimer.h
+#        ../src/timer.cpp
+#        ../src/timer.h
+#        ../src/repeattimer.cpp
+#        ../src/repeattimer.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -77,7 +77,15 @@ FetchContent_MakeAvailable(tomlplusplus)
 
 
 # Add generated sources to the target
-target_sources(${PROJECT_NAME} PRIVATE ${CAPNP_SRCS} ${CAPNP_HDRS})
+target_sources(${PROJECT_NAME} PRIVATE
+        ${CAPNP_SRCS}
+        ${CAPNP_HDRS}
+)
+
+target_sources(${PROJECT_NAME} PRIVATE
+        FILE_SET CXX_MODULES FILES
+        ../src/itimer.cppm
+)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CAPNPC_OUTPUT_DIR}
