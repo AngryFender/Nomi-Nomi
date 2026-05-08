@@ -91,12 +91,12 @@ target_sources(${PROJECT_NAME} PRIVATE
         itimer.cppm
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(${PROJECT_NAME} PUBLIC
     ${CAPNPC_OUTPUT_DIR}
     ${concurrentqueue_SOURCE_DIR}
     ${fmtlog_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PUBLIC
     Boost::boost
     OpenSSL::Crypto
     OpenSSL::SSL
