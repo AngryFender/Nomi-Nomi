@@ -13,7 +13,18 @@ public:
     ): ssl_connection_(connection),
        timer_(std::move(timer)),
        repeat_timer_(std::move(repeat_timer))
-    { }
+    {
+        ssl_connection_->set_send_callback([this](const boost::system::error_code& err)
+        {
+            this->sent(err);
+        });
+
+        ssl_connection_->set_receive_callback([this](std::unique_ptr<std::vector<char>> payload)
+        {
+            this->received(std::move(payload));
+        });
+
+    }
 
     bool start() override
     {
@@ -25,6 +36,8 @@ private:
     std::shared_ptr<IConnection> ssl_connection_;
     std::shared_ptr<ITimer> timer_;
     std::shared_ptr<ITimer> repeat_timer_;
+    void received(std::unique_ptr<std::vector<char>> payload);
+    void sent(const boost::system::error_code& err);
 
 
 };
