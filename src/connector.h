@@ -9,10 +9,10 @@ class Connector : public IConnector
 public:
     Connector(const std::shared_ptr<IConnection>& connection,
               std::unique_ptr<ITimer> timer,
-              std::unique_ptr<ITimer> repeat_timer
+              const std::shared_ptr<ITimer>& repeat_timer
     ): ssl_connection_(connection),
        timer_(std::move(timer)),
-       repeat_timer_(std::move(repeat_timer))
+       repeat_timer_(repeat_timer)
     {
         ssl_connection_->set_send_callback([this](const boost::system::error_code& err)
         {
@@ -24,12 +24,19 @@ public:
             this->received(std::move(payload));
         });
 
+        auto repeater(repeat_timer_);
+        timer_->set_callback([repeater](const boost::system::error_code& err)
+        {
+            repeater->cancel();
+        });
+
     }
 
     bool start() override
     {
-        //TODO
-        return false;
+        timer_->start();
+        repeat_timer_->start();
+        return true;
     }
 
 private:
