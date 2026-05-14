@@ -30,6 +30,15 @@ public:
             repeater->cancel();
         });
 
+        auto ssl_connect = ssl_connection_;
+        repeat_timer_->set_callback([ssl_connect](const boost::system::error_code& err)
+        {
+            ssl_connect->async_send(std::vector{'P','I','N','G'});
+        });
+
+        ssl_connection_->async_send(std::vector{'P','I','N','G'});
+        timer_->start();
+        repeat_timer->start();
     }
 
     bool start() override
