@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 MESSAGE(STATUS "Using toolchain file ➜ ${CMAKE_TOOLCHAIN_FILE}")
 
-add_library(shared_core STATIC)
-
 target_sources(shared_core PUBLIC
         iconnection.h
         connection.cpp
@@ -30,11 +28,11 @@ target_sources(shared_core PUBLIC
         iconnector.h
         connector.cpp
         connector.h
-#       itimer.h
-#       timer.cpp
-#       timer.h
-#       repeattimer.cpp
-#       repeattimer.h
+        itimer.h
+        timer.cpp
+        timer.h
+        repeattimer.cpp
+        repeattimer.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -84,11 +82,6 @@ FetchContent_MakeAvailable(tomlplusplus)
 target_sources(${PROJECT_NAME} PRIVATE
         ${CAPNP_SRCS}
         ${CAPNP_HDRS}
-)
-
-target_sources(${PROJECT_NAME} PRIVATE
-        FILE_SET CXX_MODULES FILES
-        itimer.cppm
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
