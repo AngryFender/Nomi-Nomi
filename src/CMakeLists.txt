@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 MESSAGE(STATUS "Using toolchain file ➜ ${CMAKE_TOOLCHAIN_FILE}")
 
+add_library(shared_core)
 target_sources(shared_core PUBLIC
         iconnection.h
         connection.cpp
