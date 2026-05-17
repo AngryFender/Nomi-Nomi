@@ -9,8 +9,9 @@ class RepeatTimer: public ITimer, public std::enable_shared_from_this<RepeatTime
 public:
     static std::shared_ptr<ITimer> create(boost::asio::io_context& io_context,const boost::asio::chrono::seconds period)
     {
-        return std::shared_ptr<ITimer>(new RepeatTimer(io_context, period));
+        return std::shared_ptr<ITimer>(new RepeatTimer(io_context,period));
     }
+
     void start() override;
     void cancel() override;
     void set_callback(std::function<void(const boost::system::error_code&)> callback) override;
