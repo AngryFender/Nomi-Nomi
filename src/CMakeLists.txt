@@ -99,4 +99,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     fmt::fmt
     CLI11::CLI11
     tomlplusplus::tomlplusplus
+    fmtlog-static
 )
