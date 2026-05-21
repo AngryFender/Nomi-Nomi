@@ -6,19 +6,25 @@
 
 #include "iconnection.h"
 
-class SSLConnection: public IConnection, public std::enable_shared_from_this<SSLConnection> {
+class SSLConnection final : public IConnection, public std::enable_shared_from_this<SSLConnection>
+{
 public:
+    explicit SSLConnection(tcp::socket&& socket, boost::asio::ssl::context& ssl_context):
+        _ssl_socket(std::move(socket), ssl_context), _write_in_progress(false)
+    {
+    }
+
     explicit SSLConnection(boost::asio::io_context& context, boost::asio::ssl::context& ssl_context):
         _ssl_socket(context, ssl_context), _write_in_progress(false)
     {
-
     }
-    SSLConnection(const SSLConnection& other ) = delete;
+
+    SSLConnection(const SSLConnection& other) = delete;
     SSLConnection(SSLConnection&& other) = delete;
     IConnection& operator=(const IConnection& other) override = delete ;
     IConnection& operator=(IConnection&& other) override = delete ;
     ~SSLConnection() override = default;
-    tcp::socket& get_socket() override;
+    std::string get_address() override;
     bool on_accept() override;
     void set_receive_callback(std::function<void(std::unique_ptr<std::vector<char>>)> callback) override;
     void set_send_callback(std::function<void(const boost::system::error_code&)> callback) override;
@@ -27,6 +33,7 @@ public:
     void async_connect(const tcp::endpoint& endpoint,
                        std::function<void(const boost::system::error_code&)> callback) override;
     void close() override;
+
 private:
     boost::asio::ssl::stream<tcp::socket> _ssl_socket;
     bool _write_in_progress;
@@ -34,11 +41,11 @@ private:
     std::vector<char> _packet_data;
     std::vector<char> _temp_data;
     std::queue<std::vector<char>> _outbounds;
-    std::function <void(const boost::system::error_code&)> _send_callback;
-    std::function <void(std::unique_ptr<std::vector<char>>)> _receive_callback;
+    std::function<void(const boost::system::error_code&)> _send_callback;
+    std::function<void(std::unique_ptr<std::vector<char>>)> _receive_callback;
 
-    void start_async_send();};
-
+    void start_async_send();
+};
 
 
 #endif //SSLCONNECTION_H

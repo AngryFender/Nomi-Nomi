@@ -4,18 +4,24 @@
 #include "iconnection.h"
 #include <boost/circular_buffer.hpp>
 
-class Connection : public IConnection, public std::enable_shared_from_this<Connection> {
+class Connection final : public IConnection, public std::enable_shared_from_this<Connection> {
 public:
+    explicit Connection(tcp::socket&& socket): _socket(std::move(socket)), _write_in_progress(false)
+    {
+    }
+
     explicit Connection(boost::asio::io_context& context): _socket(context),_write_in_progress(false)
     {
     }
+
     Connection(const Connection& other) = delete;
     Connection(Connection&& other) = delete;
     IConnection& operator=(const IConnection& other) override = delete ;
     IConnection& operator=(IConnection&& other) override = delete;
     ~Connection() override = default;
-    tcp::socket& get_socket() override;
+
     bool on_accept() override;
+    std::string get_address() override;
     void set_receive_callback(std::function <void(std::unique_ptr<std::vector<char>>)> callback) override;
     void set_send_callback(std::function <void(const boost::system::error_code&)> callback) override;
     void open() override;

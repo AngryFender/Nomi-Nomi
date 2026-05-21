@@ -3,14 +3,16 @@
 #include "utility/capnpreader.h"
 #include "utility/packetreader.h"
 
-tcp::socket& Connection::get_socket()
-{
-    return _socket;
-}
-
 bool Connection::on_accept()
 {
     return true;
+}
+
+std::string Connection::get_address()
+{
+    const std::string address_port = _socket.remote_endpoint().address().to_string() + ":" +
+        std::to_string(_socket.remote_endpoint().port());
+    return address_port;
 }
 
 void Connection::set_receive_callback(std::function<void(std::unique_ptr<std::vector<char>>)> callback)

@@ -12,7 +12,7 @@ public:
     virtual ~IConnection() = default;
     virtual IConnection& operator=(const IConnection& other) = delete ;
     virtual IConnection& operator=(IConnection&& other) = delete ;
-    virtual tcp::socket& get_socket() = 0;
+    virtual std::string get_address() = 0;
     virtual bool on_accept() = 0;
     virtual void set_receive_callback(std::function <void(std::unique_ptr<std::vector<char>>)> callback) = 0;
     virtual void set_send_callback(std::function <void(const boost::system::error_code&)> callback) = 0;

@@ -1,9 +1,11 @@
 #include "sslconnection.h"
 #include <fmtlog.h>
 
-tcp::socket& SSLConnection::get_socket()
+std::string SSLConnection::get_address()
 {
-    return _ssl_socket.next_layer();
+    const std::string address_port = _ssl_socket.lowest_layer().remote_endpoint().address().to_string() + ":" +
+        std::to_string(_ssl_socket.lowest_layer().remote_endpoint().port());
+    return address_port;
 }
 
 bool SSLConnection::on_accept()
