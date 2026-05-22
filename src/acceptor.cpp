@@ -9,16 +9,16 @@ void Acceptor::setHandler(std::function<void(std::shared_ptr<IConnection>)> hand
 
 void Acceptor::open()
 {
-    std::shared_ptr<IConnection> socket_base = std::make_shared<Connection>(_io_context);
     logi("Listening port{} server type {}" , _port, static_cast<int>(_type));
-    //async_accept
-    _acceptor.async_accept(socket_base->get_socket(), [socket_base, this](const boost::system::error_code& error)
+
+    _acceptor.async_accept([this](const boost::system::error_code& error, tcp::socket new_socket)
     {
         if (error)
         {
-            loge("error while accepting incoming connnection:  {}", error.message());
+            loge("error while accepting incoming connection:  {}", error.message());
         }
-        _accept_handler(socket_base);
+
+        _accept_handler(std::make_shared<Connection>(std::move(new_socket)));
 
         this->open();
     });

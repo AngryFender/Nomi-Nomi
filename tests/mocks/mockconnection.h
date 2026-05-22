@@ -7,7 +7,7 @@
 class MockConnection: public IConnection
 {
 public:
-    MOCK_METHOD(tcp::socket&,get_socket,(),(override));
+    MOCK_METHOD(std::string,get_address,(),(override));
     MOCK_METHOD(bool,on_accept,(),(override));
     MOCK_METHOD(void, set_receive_callback, (std::function<void(std::unique_ptr<std::vector<char>>)> callback), (override));
     MOCK_METHOD(void, set_send_callback, (std::function <void(const boost::system::error_code&)> callback), (override));

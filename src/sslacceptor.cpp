@@ -9,9 +9,7 @@ void SSLAcceptor::setHandler(std::function<void(std::shared_ptr<IConnection>)> h
 
 void SSLAcceptor::open()
 {
-    std::shared_ptr<IConnection> ssl_socket = std::make_shared<SSLConnection>(_io_context, _ssl_context);
-    logi("Listening ssl port{} server type {}" , _port, static_cast<int>(_type));
-    _acceptor.async_accept( ssl_socket->get_socket(), [ ssl_socket, this](const boost::system::error_code& error)
+    _acceptor.async_accept([this](const boost::system::error_code& error, tcp::socket&& new_socket)
     {
         if (error)
         {
@@ -19,6 +17,7 @@ void SSLAcceptor::open()
         }
         else
         {
+            auto ssl_socket = std::make_shared<SSLConnection>(std::move(new_socket),this->_ssl_context);
             if(ssl_socket->on_accept())
             {
                 _accept_handler(ssl_socket);
