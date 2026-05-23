@@ -8,6 +8,7 @@ add_executable(Test
         mocks/mocktimer.h
         test_main.cpp
         connector.cpp
+        mocks/mockconnection.h
 )
 
 FetchContent_Declare(
