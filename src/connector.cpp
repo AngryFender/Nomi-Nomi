@@ -3,7 +3,9 @@
 
 void Connector::received(std::unique_ptr<std::vector<char>> data)
 {
-    if(data->data() == "PONG")
+    const std::string_view payload(data->data(), data->size());
+
+    if(payload == "PONG")
     {
         this->repeat_timer_->cancel();
         this->timer_->cancel();

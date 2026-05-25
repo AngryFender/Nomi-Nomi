@@ -3,7 +3,7 @@
 #include "iacceptor.h"
 #include "daemoninfo.h"
 
-class Acceptor: public IAcceptor {
+class Acceptor final : public IAcceptor {
 public:
     Acceptor(const daemon_type type, boost::asio::io_context& io_context, const boost::asio::ip::port_type port):
         _type(type), _io_context(io_context),_port(port),

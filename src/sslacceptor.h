@@ -5,7 +5,7 @@
 #include "iacceptor.h"
 #include <boost/asio/ssl/stream.hpp>
 
-class SSLAcceptor : public IAcceptor {
+class SSLAcceptor final : public IAcceptor {
 public:
     SSLAcceptor(const daemon_type type, boost::asio::io_context& io_context, boost::asio::ssl::context& ssl_context, const boost::asio::ip::port_type port):
         _type(type), _io_context(io_context),_ssl_context(ssl_context), _port(port),
