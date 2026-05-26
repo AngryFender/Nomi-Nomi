@@ -8,7 +8,11 @@
 #include <iostream>
 
 #include "fmtlog-inl.h"
+#include "../src/connector.h"
+#include "../src/repeattimer.h"
 #include "../src/sslacceptor.h"
+#include "../src/sslconnection.h"
+#include "../src/timer.h"
 #include "../src/utility/config.h"
 
 constexpr int SERVER1_LISTENING_PORT = 4500;
@@ -99,6 +103,14 @@ int main(int argc, char* argv[])
                                                          context_server,
                                                          ctx_server,
                                                          SERVER1_LISTENING_PORT);
+
+    auto active_node = std::make_unique<SSLConnection>(context_server,ctx_server);
+    const auto repeat_timer = std::make_shared<RepeatTimer>(context_server, std::chrono::seconds(5));
+    auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(30));
+
+    Connector connector(std::move(active_node), std::move(active_connect_timeout), repeat_timer);
+
+
     std::unique_ptr<SSLAcceptor> standby_acceptor;
     boost::asio::io_context context_standby;
     if (config->type && config->standby.has_value())
