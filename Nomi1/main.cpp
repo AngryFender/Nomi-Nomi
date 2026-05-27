@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
                                                          SERVER1_LISTENING_PORT);
 
     auto active_node = std::make_unique<SSLConnection>(context_server,ctx_server);
-    const auto repeat_timer = std::make_shared<RepeatTimer>(context_server, std::chrono::seconds(5));
+    const auto repeat_timer = RepeatTimer::create(context_server, std::chrono::seconds(5));
     auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(30));
 
     const tcp::endpoint endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 3000);
