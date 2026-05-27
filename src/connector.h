@@ -8,6 +8,7 @@ class Connector : public IConnector
 {
 public:
     Connector(const std::shared_ptr<IConnection>& connection,
+              const tcp::endpoint& endpoint,
               std::unique_ptr<ITimer> timer,
               const std::shared_ptr<ITimer>& repeat_timer
     ): ssl_connection_(connection),
@@ -36,6 +37,10 @@ public:
             ssl_connect->async_send(std::vector{'P','I','N','G'});
         });
 
+        ssl_connection_->async_connect(endpoint, [](const boost::system::error_code& code)
+        {
+        });
+
         ssl_connection_->async_send(std::vector{'P','I','N','G'});
         timer_->start();
         repeat_timer->start();
@@ -54,7 +59,6 @@ private:
     std::shared_ptr<ITimer> repeat_timer_;
     void received(std::unique_ptr<std::vector<char>> payload);
     void sent(const boost::system::error_code& err);
-
 
 };
 

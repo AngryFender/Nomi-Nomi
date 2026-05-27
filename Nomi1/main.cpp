@@ -108,7 +108,8 @@ int main(int argc, char* argv[])
     const auto repeat_timer = std::make_shared<RepeatTimer>(context_server, std::chrono::seconds(5));
     auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(30));
 
-    Connector connector(std::move(active_node), std::move(active_connect_timeout), repeat_timer);
+    const tcp::endpoint endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 3000);
+    Connector connector(std::move(active_node), endpoint, std::move(active_connect_timeout), repeat_timer);
 
 
     std::unique_ptr<SSLAcceptor> standby_acceptor;

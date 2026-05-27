@@ -75,8 +75,7 @@ void SSLConnection::async_send(const std::vector<char>& packet)
 void SSLConnection::async_connect(const tcp::endpoint& endpoint,
     std::function<void(const boost::system::error_code&)> callback)
 {
-    auto self = shared_from_this();
-    _ssl_socket.lowest_layer().async_connect( endpoint, [self, callback](const boost::system::error_code& error)
+    _ssl_socket.lowest_layer().async_connect( endpoint, [self = shared_from_this(), callback](const boost::system::error_code& error)
     {
         if(error)
         {
