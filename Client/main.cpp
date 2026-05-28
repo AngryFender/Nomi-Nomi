@@ -14,6 +14,7 @@
 #include "../src/sslconnection.h"
 #include "../src/utility/capnpreader.h"
 #include "../src/utility/packetreader.h"
+#include "../src/initconnector.h"
 
 
 std::optional<ClientConfig> read_config(std::string_view config_path)
@@ -49,7 +50,7 @@ int main(int argc, char* argv[])
     app.add_option("-c,--config",
         args.config_path, "Path to the configuration file")->required(true);
     CLI11_PARSE(app, argc, argv);
-    auto config = read_config("");
+    auto config = read_config(args.config_path);
     if (!config)
     {
         return -1;

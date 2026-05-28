@@ -7,7 +7,7 @@ MESSAGE(STATUS "Using toolchain file ➜ ${CMAKE_TOOLCHAIN_FILE}")
 add_executable(Test
         mocks/mocktimer.h
         test_main.cpp
-        connector.cpp
+        initconnector.cpp
         mocks/mockconnection.h
 )
 

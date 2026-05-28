@@ -26,9 +26,8 @@ target_sources(shared_core PUBLIC
         sslacceptor.cpp
         sslacceptor.h
         utility/config.h
-        iconnector.h
-        connector.cpp
-        connector.h
+        initconnector.cpp
+        initconnector.h
         itimer.h
         timer.cpp
         timer.h

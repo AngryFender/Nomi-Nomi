@@ -1,13 +1,12 @@
 #ifndef CONNECTOR_H
 #define CONNECTOR_H
 #include "iconnection.h"
-#include "iconnector.h"
 #include "itimer.h"
 
-class Connector : public IConnector
+class InitConnector
 {
 public:
-    Connector(const std::shared_ptr<IConnection>& connection,
+    InitConnector(const std::shared_ptr<IConnection>& connection,
               const tcp::endpoint& endpoint,
               std::unique_ptr<ITimer> timer,
               const std::shared_ptr<ITimer>& repeat_timer
@@ -44,13 +43,6 @@ public:
         ssl_connection_->async_send(std::vector{'P','I','N','G'});
         timer_->start();
         repeat_timer->start();
-    }
-
-    bool start() override
-    {
-        timer_->start();
-        repeat_timer_->start();
-        return true;
     }
 
 private:

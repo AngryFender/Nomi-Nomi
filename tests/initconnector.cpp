@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <functional>
-#include "../src/connector.h"
+#include "../src/initconnector.h"
 #include "mocks/mockconnection.h"
 #include "mocks/mocktimer.h"
 
@@ -23,7 +23,7 @@ TEST(ConnectorTest, initialisation_test)
     EXPECT_CALL(*mock_repeat_timer, start());
     EXPECT_CALL(*mock_timer_view, start());
 
-    Connector connector(mock_connection, endpoint, std::move(mock_timer), mock_repeat_timer);
+    InitConnector connector(mock_connection, endpoint, std::move(mock_timer), mock_repeat_timer);
 }
 
 TEST(ConnectorTest, pong_test)
@@ -46,7 +46,7 @@ TEST(ConnectorTest, pong_test)
         .WillOnce(testing::SaveArg<0>(&captured_set_receive_callback));
     EXPECT_CALL(*mock_connection, async_connect(endpoint, testing::_));
 
-    Connector connector(mock_connection, endpoint, std::move(mock_timer), mock_repeat_timer);
+    InitConnector connector(mock_connection, endpoint, std::move(mock_timer), mock_repeat_timer);
 
     EXPECT_CALL(*mock_repeat_timer, cancel()).Times(1);
     EXPECT_CALL(*mock_timer_view, cancel()).Times(1);
@@ -77,7 +77,7 @@ TEST(ConnectorTest, no_pong_test)
 
     EXPECT_CALL(*mock_connection, async_send(std::vector{'P','I','N','G'}));
 
-    Connector connector(mock_connection, endpoint, std::move(mock_timer), mock_repeat_timer);
+    InitConnector connector(mock_connection, endpoint, std::move(mock_timer), mock_repeat_timer);
 
     EXPECT_CALL(*mock_timer_view, cancel()).Times(0);
     EXPECT_CALL(*mock_repeat_timer, cancel()).Times(1);

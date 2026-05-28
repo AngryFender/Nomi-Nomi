@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "fmtlog-inl.h"
-#include "../src/connector.h"
+#include "../src/initconnector.h"
 #include "../src/repeattimer.h"
 #include "../src/sslacceptor.h"
 #include "../src/sslconnection.h"
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
     auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(30));
 
     const tcp::endpoint endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 3000);
-    Connector connector(std::move(active_node), endpoint, std::move(active_connect_timeout), repeat_timer);
+    InitConnector connector(std::move(active_node), endpoint, std::move(active_connect_timeout), repeat_timer);
 
 
     std::unique_ptr<SSLAcceptor> standby_acceptor;
@@ -123,7 +123,6 @@ int main(int argc, char* argv[])
                                                               context_server,
                                                               ctx_standby,
                                                               config->standby->port);
-
 
     }
 

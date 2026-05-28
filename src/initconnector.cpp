@@ -1,7 +1,7 @@
 
-#include "connector.h"
+#include "initconnector.h"
 
-void Connector::received(std::unique_ptr<std::vector<char>> data)
+void InitConnector::received(std::unique_ptr<std::vector<char>> data)
 {
     const std::string_view payload(data->data(), data->size());
 
@@ -12,7 +12,7 @@ void Connector::received(std::unique_ptr<std::vector<char>> data)
     }
 }
 
-void Connector::sent(const boost::system::error_code& err)
+void InitConnector::sent(const boost::system::error_code& err)
 {
 
 }
