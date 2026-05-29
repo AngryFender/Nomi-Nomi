@@ -27,17 +27,26 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 
 void Connection::open()
 {
-    auto self = shared_from_this();
     auto size_buffer = std::make_shared<uint32_t>(0);
 
     async_read(_socket, boost::asio::buffer(size_buffer.get(), sizeof(uint32_t)),
-        [size_buffer,self](const boost::system::error_code& err, std::size_t size)
+        [size_buffer,self = shared_from_this()](const boost::system::error_code& err, std::size_t size)
     {
         if(err)
         {
-            //todo handle error
-            loge("Error when receiving packets{}", err.message());
-            return;
+            //TODO error handling
+            switch (err.value())
+            {
+            case boost::asio::error::not_connected:
+                logd("Not Connected");
+                break;
+            case boost::asio::error::operation_aborted:
+                logd("Connection closed");
+                return;
+            default:
+                loge("Error when receiving packets: {}", err.message());
+                return;
+            }
         }
 
         // get the message length and create message buffer of the same length
@@ -77,8 +86,7 @@ void Connection::close()
 
 void Connection::start_async_send()
 {
-    auto self = shared_from_this();
-    async_write(_socket, boost::asio::buffer(_outbounds.front()), [self](const boost::system::error_code& error, size_t size)
+    async_write(_socket, boost::asio::buffer(_outbounds.front()), [self = shared_from_this()](const boost::system::error_code& error, size_t size)
     {
         if(error)
         {
