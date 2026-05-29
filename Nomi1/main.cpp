@@ -12,6 +12,7 @@
 #include "../src/repeattimer.h"
 #include "../src/sslacceptor.h"
 #include "../src/sslconnection.h"
+#include "../src/connection.h"
 #include "../src/timer.h"
 #include "../src/utility/config.h"
 
@@ -93,52 +94,54 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    OSSL_PROVIDER_load(nullptr, "default");
-
-    auto ctx_server = create_ssl_context(config->server.cert_path,
-                                                config->server.key_path);
-
+    // OSSL_PROVIDER_load(nullptr, "default");
+    //
+    // auto ctx_server = create_ssl_context(config->server.cert_path,
+    //                                             config->server.key_path);
+    //
     boost::asio::io_context context_server;
-    auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
-                                                         context_server,
-                                                         ctx_server,
-                                                         SERVER1_LISTENING_PORT);
+    // auto client_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
+    //                                                      context_server,
+    //                                                      ctx_server,
+    //                                                      SERVER1_LISTENING_PORT);
 
-    auto active_node = std::make_unique<SSLConnection>(context_server,ctx_server);
+    // auto active_node = std::make_unique<SSLConnection>(context_server,ctx_server);
+    auto active_node = std::make_unique<Connection>(context_server);
     const auto repeat_timer = RepeatTimer::create(context_server, std::chrono::seconds(5));
-    auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(30));
+    auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(40));
 
     const tcp::endpoint endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 3000);
     InitConnector connector(std::move(active_node), endpoint, std::move(active_connect_timeout), repeat_timer);
 
 
-    std::unique_ptr<SSLAcceptor> standby_acceptor;
-    boost::asio::io_context context_standby;
-    if (config->type && config->standby.has_value())
-    {
-        auto ctx_standby = create_ssl_context(config->standby->cert_path,
-                                              config->standby->key_path);
-
-        standby_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
-                                                              context_server,
-                                                              ctx_standby,
-                                                              config->standby->port);
-
-    }
-
-    Manager manager(std::move(client_acceptor),std::move(standby_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
-
-    std::thread thread_client([&]()
-    {
-        context_server.run();
-    });
-    std::thread thread_node([&]()
-    {
-        context_standby.run();
-    });
-
-    thread_client.join();
-    thread_node.join();
+    // std::unique_ptr<SSLAcceptor> standby_acceptor;
+    // boost::asio::io_context context_standby;
+    // if (config->type && config->standby.has_value())
+    // {
+    //     auto ctx_standby = create_ssl_context(config->standby->cert_path,
+    //                                           config->standby->key_path);
+    //
+    //     standby_acceptor = std::make_unique<SSLAcceptor>(daemon_type::client,
+    //                                                           context_server,
+    //                                                           ctx_standby,
+    //                                                           config->standby->port);
+    //
+    // }
+    //
+    // Manager manager(std::move(client_acceptor),std::move(standby_acceptor),CLIENT_THREAD_MAX, NODE_THREAD_MAX);
+    //
+    // std::thread thread_client([&]()
+    // {
+    //     context_server.run();
+    // });
+    // std::thread thread_node([&]()
+    // {
+    //     context_standby.run();
+    // });
+    //
+    // thread_client.join();
+    // thread_node.join();
+    context_server.run();
     fmtlog::stopPollingThread();
     return 0;
 }
