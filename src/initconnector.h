@@ -11,6 +11,7 @@ public:
               std::unique_ptr<ITimer> timer,
               const std::shared_ptr<ITimer>& repeat_timer
     ): connection_(connection),
+       endpoint_(endpoint),
        timer_(std::move(timer)),
        repeat_timer_(repeat_timer)
     {
@@ -31,27 +32,29 @@ public:
             connect->close();
         });
 
-        repeat_timer_->set_callback([connect = connection_](const boost::system::error_code& err)
+        repeat_timer_->set_callback([&,connect = connection_](const boost::system::error_code& err)
         {
-            connect->async_send(std::vector{'P','I','N','G'});
+             if(err)
+             {
+                 init_connect();
+             }
+             else
+             {
+                 connection_->async_send(std::vector{'P', 'I', 'N', 'G'});
+             }
         });
 
-        connection_->async_connect(endpoint, [](const boost::system::error_code& code)
-        {
-        });
-        connection_->open();
-        connection_->async_send(std::vector{'P','I','N','G'});
-        timer_->start();
-        repeat_timer->start();
+        init_connect();
     }
 
 private:
     std::shared_ptr<IConnection> connection_;
     std::shared_ptr<ITimer> timer_;
     std::shared_ptr<ITimer> repeat_timer_;
+    tcp::endpoint endpoint_;
     void received(std::unique_ptr<std::vector<char>> payload);
     void sent(const boost::system::error_code& err);
-
+    void init_connect();
 };
 
 

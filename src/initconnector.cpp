@@ -16,3 +16,22 @@ void InitConnector::sent(const boost::system::error_code& err)
 {
 
 }
+
+void InitConnector::init_connect()
+{
+    connection_->async_connect(endpoint_,[&](const boost::system::error_code& error)
+    {
+        if(error)
+        {
+            connection_->close();
+        }
+        else
+        {
+            connection_->async_send(std::vector{'P','I','N','G'});
+        }
+        timer_->start();
+        repeat_timer_->start();
+    });
+}
+
+
