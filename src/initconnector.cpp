@@ -1,7 +1,7 @@
 
 #include "initconnector.h"
 
-void InitConnector::received(std::unique_ptr<std::vector<char>> data)
+void InitConnector::received(const std::unique_ptr<std::vector<char>>& data)
 {
     const std::string_view payload(data->data(), data->size());
 
@@ -27,11 +27,16 @@ void InitConnector::init_connect()
         }
         else
         {
-            connection_->async_send(std::vector{'P','I','N','G'});
+            send_ini_message();
         }
         timer_->start();
         repeat_timer_->start();
     });
+}
+
+void InitConnector::send_ini_message()
+{
+    connection_->async_send(std::vector{'P','I','N','G'});
 }
 
 

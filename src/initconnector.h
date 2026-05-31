@@ -22,7 +22,7 @@ public:
 
         connection_->set_receive_callback([this](std::unique_ptr<std::vector<char>> payload)
         {
-            this->received(std::move(payload));
+            this->received(payload);
         });
 
         auto repeater(repeat_timer_);
@@ -32,7 +32,7 @@ public:
             connect->close();
         });
 
-        repeat_timer_->set_callback([&,connect = connection_](const boost::system::error_code& err)
+        repeat_timer_->set_callback([&](const boost::system::error_code& err)
         {
              if(err)
              {
@@ -40,7 +40,7 @@ public:
              }
              else
              {
-                 connection_->async_send(std::vector{'P', 'I', 'N', 'G'});
+                 send_ini_message();
              }
         });
 
@@ -52,9 +52,10 @@ private:
     std::shared_ptr<ITimer> timer_;
     std::shared_ptr<ITimer> repeat_timer_;
     tcp::endpoint endpoint_;
-    void received(std::unique_ptr<std::vector<char>> payload);
+    void received(const std::unique_ptr<std::vector<char>>& payload);
     void sent(const boost::system::error_code& err);
     void init_connect();
+    void send_ini_message();
 };
 
 
