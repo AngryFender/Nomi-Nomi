@@ -4,26 +4,26 @@
 
 void Manager::AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnection> socket)
 {
-    std::string address_port = endpoint.address().to_string() +":" + std::to_string(endpoint.port());
+    std::string address_port = endpoint.address().to_string() + ":" + std::to_string(endpoint.port());
     socket->async_connect(endpoint, [address_port, socket, this](const boost::system::error_code& code)
     {
-        if(code)
+        if (code)
         {
             //todo log error message
             return;
         }
         _client_connections[address_port] = socket;
-        socket->set_receive_callback([this, address_port](std::unique_ptr<std::vector<char>> buffer)
+        socket->set_receive_callback([this, address_port](std::string_view buffer)
         {
-            if(!this->_client_requests.try_enqueue(std::move(buffer)))
-            {
-                //todo log error
-            }
+            // if(!this->_client_requests.try_enqueue(std::move(buffer)))
+            // {
+            //todo log error
+            // }
         });
 
         socket->set_send_callback([this, address_port](const boost::system::error_code& code)
         {
-            if(code)
+            if (code)
             {
                 //todo log error message
             }
@@ -34,7 +34,7 @@ void Manager::AddClient(const tcp::endpoint& endpoint, std::shared_ptr<IConnecti
 
 bool Manager::RemoveClient(const std::string& address_port)
 {
-    if(_client_connections.contains(address_port))
+    if (_client_connections.contains(address_port))
     {
         _client_connections.erase(address_port);
         return true;
@@ -46,16 +46,16 @@ void Manager::AcceptClient(const std::shared_ptr<IConnection>& socket)
 {
     const std::string address = socket->get_address();
 
-    if(!_client_connections.contains(address))
+    if (!_client_connections.contains(address))
     {
         _client_connections[address] = socket;
 
-        socket->set_receive_callback([this, address](std::unique_ptr<std::vector<char>> buffer)
+        socket->set_receive_callback([this, address](std::string_view buffer)
         {
-            if (!this->_client_requests.try_enqueue(std::move(buffer)))
-            {
-                //todo log error
-            }
+            // if (!this->_client_requests.try_enqueue(std::move(buffer)))
+            // {
+                // todo log error
+            // }
         });
 
         socket->set_send_callback([this, address](const boost::system::error_code& code)
@@ -78,25 +78,25 @@ void Manager::AddNode(const tcp::endpoint& endpoint, std::shared_ptr<IConnection
     std::string address_port = endpoint.address().to_string() + ":" + std::to_string(endpoint.port());
     socket->async_connect(endpoint, [address_port, socket, this](const boost::system::error_code& code)
     {
-        if(code)
+        if (code)
         {
             //todo log error message
             return;
         }
         _node_connections[address_port] = socket;
 
-        socket->set_receive_callback([this, address_port](std::unique_ptr<std::vector<char>> buffer)
+        socket->set_receive_callback([this, address_port](std::string_view buffer)
         {
             //todo delegate the callback to logic object
-            if(!this->_node_requests.try_enqueue(std::move(buffer)))
-            {
+            // if (!this->_node_requests.try_enqueue(std::move(buffer)))
+            // {
                 //todo log error
-            }
+            // }
         });
 
         socket->set_send_callback([this, address_port](const boost::system::error_code& code)
         {
-            if(code)
+            if (code)
             {
                 //todo log error message
             }
@@ -108,7 +108,7 @@ void Manager::AddNode(const tcp::endpoint& endpoint, std::shared_ptr<IConnection
 bool Manager::RemoveNode(const std::string& address_port)
 {
     //todo
-    if(_node_connections.contains(address_port))
+    if (_node_connections.contains(address_port))
     {
         _node_connections.erase(address_port);
         return true;
@@ -120,16 +120,16 @@ void Manager::AcceptNode(const std::shared_ptr<IConnection>& socket)
 {
     const std::string address = socket->get_address();
 
-    if(!_node_connections.contains(address))
+    if (!_node_connections.contains(address))
     {
         _node_connections[address] = socket;
-        socket->set_receive_callback([this, address](std::unique_ptr<std::vector<char>> buffer)
+        socket->set_receive_callback([this, address](std::string_view buffer)
         {
-            //todo delegate the callback to logic object
-            if(!this->_node_requests.try_enqueue(std::move(buffer)))
-            {
+            // todo delegate the callback to logic object
+            // if (!this->_node_requests.try_enqueue(std::move(buffer)))
+            // {
                 //todo log error
-            }
+            // }
         });
 
         socket->set_send_callback([this, address](const boost::system::error_code& code)
@@ -149,5 +149,4 @@ void Manager::ClearAllNodes()
 
 void Manager::ReplyMessage(const std::string& address_port, const std::vector<char>& buffer)
 {
-
 }

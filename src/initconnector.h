@@ -1,5 +1,7 @@
 #ifndef CONNECTOR_H
 #define CONNECTOR_H
+#include <utility>
+
 #include "iconnection.h"
 #include "itimer.h"
 
@@ -7,11 +9,11 @@ class InitConnector
 {
 public:
     InitConnector(const std::shared_ptr<IConnection>& connection,
-              const tcp::endpoint& endpoint,
+                  tcp::endpoint endpoint,
               std::unique_ptr<ITimer> timer,
               const std::shared_ptr<ITimer>& repeat_timer
     ): connection_(connection),
-       endpoint_(endpoint),
+       endpoint_(std::move(endpoint)),
        timer_(std::move(timer)),
        repeat_timer_(repeat_timer)
     {
@@ -20,7 +22,7 @@ public:
             this->sent(err);
         });
 
-        connection_->set_receive_callback([this](std::unique_ptr<std::vector<char>> payload)
+        connection_->set_receive_callback([this](std::string_view payload)
         {
             this->received(payload);
         });
@@ -52,7 +54,7 @@ private:
     std::shared_ptr<ITimer> timer_;
     std::shared_ptr<ITimer> repeat_timer_;
     tcp::endpoint endpoint_;
-    void received(const std::unique_ptr<std::vector<char>>& payload);
+    void received(std::string_view payload);
     void sent(const boost::system::error_code& err);
     void init_connect();
     void send_ini_message();

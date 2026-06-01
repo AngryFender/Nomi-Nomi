@@ -1,11 +1,9 @@
 
 #include "initconnector.h"
 
-void InitConnector::received(const std::unique_ptr<std::vector<char>>& data)
+void InitConnector::received(std::string_view data)
 {
-    const std::string_view payload(data->data(), data->size());
-
-    if(payload == "PONG")
+    if(data == "PONG")
     {
         this->repeat_timer_->cancel();
         this->timer_->cancel();

@@ -22,7 +22,7 @@ bool SSLConnection::on_accept()
     return true;
 }
 
-void SSLConnection::set_receive_callback(std::function<void(std::unique_ptr<std::vector<char>>)> callback)
+void SSLConnection::set_receive_callback(std::function<void(std::string_view)> callback)
 {
     _receive_callback = callback;
 }
@@ -34,31 +34,31 @@ void SSLConnection::set_send_callback(std::function<void(const boost::system::er
 
 void SSLConnection::open()
 {
-    auto self = shared_from_this();
-    auto size_buffer = std::make_shared<uint32_t>(0);
-
-    async_read(_ssl_socket, boost::asio::buffer(size_buffer.get(), sizeof(uint32_t)),
-        [size_buffer,self](const boost::system::error_code& err, std::size_t size)
-    {
-        if(err)
-        {
-            //todo handle error
-            loge("Error when receiving packets{}", err.message());
-            return;
-        }
-
-        // get the message length and create message buffer of the same length
-        const uint32_t message_length = ntohl(*size_buffer);
-        auto message_buffer = std::make_unique<std::vector<char>>(message_length);
-
-        // read until the message buffer is filled
-        async_read(self->_ssl_socket, boost::asio::buffer(*message_buffer),
-        [self, &message_buffer](const boost::system::error_code& code, std::size_t size)
-        {
-            self->_receive_callback(std::move(message_buffer));
-            self->open();
-        });
-    });
+    // auto self = shared_from_this();
+    // auto size_buffer = std::make_shared<uint32_t>(0);
+    //
+    // async_read(_ssl_socket, boost::asio::buffer(size_buffer.get(), sizeof(uint32_t)),
+    //     [size_buffer,self](const boost::system::error_code& err, std::size_t size)
+    // {
+    //     if(err)
+    //     {
+    //         //todo handle error
+    //         loge("Error when receiving packets{}", err.message());
+    //         return;
+    //     }
+    //
+    //     // get the message length and create message buffer of the same length
+    //     const uint32_t message_length = ntohl(*size_buffer);
+    //     auto message_buffer = std::make_unique<std::vector<char>>(message_length);
+    //
+    //     // read until the message buffer is filled
+    //     async_read(self->_ssl_socket, boost::asio::buffer(*message_buffer),
+    //     [self, &message_buffer](const boost::system::error_code& code, std::size_t size)
+    //     {
+    //         self->_receive_callback(std::move(message_buffer));
+    //         self->open();
+    //     });
+    // });
 
 }
 

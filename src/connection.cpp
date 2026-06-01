@@ -15,7 +15,7 @@ std::string Connection::get_address()
     return address_port;
 }
 
-void Connection::set_receive_callback(std::function<void(std::unique_ptr<std::vector<char>>)> callback)
+void Connection::set_receive_callback(std::function<void(std::string_view)> callback)
 {
     _receive_callback = callback;
 }
@@ -27,10 +27,9 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 
 void Connection::open()
 {
-    auto size_buffer = std::make_shared<uint32_t>(0);
 
-    async_read(_socket, boost::asio::buffer(size_buffer.get(), sizeof(uint32_t)),
-        [size_buffer,self = shared_from_this()](const boost::system::error_code& err, std::size_t size)
+    async_read(_socket, boost::asio::buffer(&_internal_buffer.front(), sizeof(char)),
+        [self = shared_from_this()](const boost::system::error_code& err, std::size_t size)
     {
         if(err)
         {
@@ -50,14 +49,15 @@ void Connection::open()
         }
 
         // get the message length and create message buffer of the same length
-        const uint32_t message_length = ntohl(*size_buffer);
-        auto message_buffer = std::make_unique<std::vector<char>>(message_length);
+        const int8_t message_length = self->_internal_buffer.front();
+        self->_internal_buffer.pop_front();
 
         // read until the message buffer is filled
-        async_read(self->_socket, boost::asio::buffer(*message_buffer),
-        [self, &message_buffer](const boost::system::error_code& code, std::size_t size)
+        async_read(self->_socket, boost::asio::buffer(&self->_internal_buffer.front(), sizeof(char)),
+        [self, message_length](const boost::system::error_code& code, std::size_t size)
         {
-            self->_receive_callback(std::move(message_buffer));
+            self->_receive_callback(std::string_view(&self->_internal_buffer.front(), message_length));
+            self->_internal_buffer.clear();
             self->open();
         });
     });
