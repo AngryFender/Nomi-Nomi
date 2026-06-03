@@ -41,7 +41,7 @@ TEST(ConnectorTest, pong_test)
     EXPECT_CALL(*mock_repeat_timer, start());
     EXPECT_CALL(*mock_timer_view, start());
 
-    std::function<void(std::unique_ptr<std::vector<char>> data)> captured_set_receive_callback;
+    std::function<void(std::string_view data)> captured_set_receive_callback;
     EXPECT_CALL(*mock_connection, set_receive_callback(testing::_))
         .WillOnce(testing::SaveArg<0>(&captured_set_receive_callback));
     EXPECT_CALL(*mock_connection, async_connect(endpoint, testing::_));
@@ -51,9 +51,8 @@ TEST(ConnectorTest, pong_test)
     EXPECT_CALL(*mock_repeat_timer, cancel()).Times(1);
     EXPECT_CALL(*mock_timer_view, cancel()).Times(1);
 
-    std::vector fake_data{'P', 'O', 'N', 'G'};
-    auto fake_packets = std::make_unique<std::vector<char>>(std::move(fake_data));
-    captured_set_receive_callback(std::move(fake_packets));
+    std::array<char,4> fake_data{'P', 'O', 'N', 'G'};
+    captured_set_receive_callback(std::string_view(fake_data.data(),fake_data.size()));
 
 }
 TEST(ConnectorTest, no_pong_test)
