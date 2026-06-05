@@ -17,7 +17,7 @@ void InitConnector::sent(const boost::system::error_code& err)
 
 void InitConnector::init_connect()
 {
-    connection_->async_connect(endpoint_,[&](const boost::system::error_code& error)
+    connection_->async_connect(endpoint_,[this](const boost::system::error_code& error)
     {
         if(error)
         {
@@ -27,8 +27,6 @@ void InitConnector::init_connect()
         {
             send_ini_message();
         }
-        timer_->start();
-        repeat_timer_->start();
     });
 }
 
