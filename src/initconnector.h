@@ -51,6 +51,7 @@ public:
         timer_->start();
         repeat_timer_->start();
         init_connect();
+        connection_->open();
     }
 
 private:
@@ -58,10 +59,10 @@ private:
     std::shared_ptr<ITimer> timer_;
     std::shared_ptr<ITimer> repeat_timer_;
     tcp::endpoint endpoint_;
-    void received(std::string_view payload);
+    void received(std::string_view payload) const;
     void sent(const boost::system::error_code& err);
-    void init_connect();
-    void send_ini_message();
+    void init_connect() const;
+    void send_ini_message() const;
 };
 
 
