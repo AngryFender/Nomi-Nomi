@@ -7,6 +7,7 @@ void InitConnector::received(std::string_view payload) const
     {
         this->repeat_timer_->cancel();
         this->timer_->cancel();
+        logi("PONG received");
     }
 }
 

@@ -31,9 +31,9 @@ public:
         auto repeater(repeat_timer_);
         timer_->set_callback([repeater, connect = connection_](const boost::system::error_code& err)
         {
-            if (err)
+            if (err && err != boost::asio::error::operation_aborted)
             {
-                loge("IntiConnector failed to call timer: {}", err.message());
+                loge("IntiConnector failed at callback:{} {}", err.value(), err.message());
             }
             repeater->cancel();
             connect->close();
