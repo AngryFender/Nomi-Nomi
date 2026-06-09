@@ -16,7 +16,7 @@ TEST(ConnectorTest, initialisation_test)
     EXPECT_CALL(*mock_connection, set_send_callback(testing::_));
     EXPECT_CALL(*mock_connection, set_receive_callback(testing::_));
     EXPECT_CALL(*mock_connection, async_connect(endpoint, testing::_));
-    EXPECT_CALL(*mock_connection, open()).Times(0);
+    EXPECT_CALL(*mock_connection, open()).Times(1);
     EXPECT_CALL(*mock_repeat_timer, set_callback(testing::_));
     EXPECT_CALL(*mock_timer_view, set_callback(testing::_));
     EXPECT_CALL(*mock_repeat_timer, start());
@@ -37,7 +37,7 @@ TEST(ConnectorTest, pong_test)
     EXPECT_CALL(*mock_repeat_timer, set_callback(testing::_));
     EXPECT_CALL(*mock_timer_view, set_callback(testing::_));
 
-    EXPECT_CALL(*mock_connection, open()).Times(0);
+    EXPECT_CALL(*mock_connection, open()).Times(1);
     EXPECT_CALL(*mock_connection, async_connect(endpoint,testing::_))
     .WillOnce([](const tcp::endpoint& endpoint,const std::function<void(const boost::system::error_code& code)>& callback){
         const boost::system::error_code success_code;
@@ -78,7 +78,7 @@ TEST(ConnectorTest, no_pong_test)
         callback(failure);
     });
 
-    EXPECT_CALL(*mock_connection, open()).Times(0);
+    EXPECT_CALL(*mock_connection, open()).Times(1);
     EXPECT_CALL(*mock_repeat_timer, set_callback(testing::_));
     std::function<void(const boost::system::error_code& code)> injected_timer_callback;
     EXPECT_CALL(*mock_timer_view, set_callback(testing::_))
@@ -87,7 +87,7 @@ TEST(ConnectorTest, no_pong_test)
     EXPECT_CALL(*mock_repeat_timer, start());
     EXPECT_CALL(*mock_timer_view, start());
 
-    EXPECT_CALL(*mock_connection, close()).Times(2);
+    EXPECT_CALL(*mock_connection, close()).Times(1);
     EXPECT_CALL(*mock_repeat_timer, cancel()).Times(1);
     EXPECT_CALL(*mock_timer_view, cancel()).Times(0);
     InitConnector connector(mock_connection, endpoint, std::move(mock_timer), mock_repeat_timer);
