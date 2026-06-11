@@ -42,6 +42,8 @@ std::optional<Config> read_config(std::string_view config_path)
     config.server.key_path = config_file["server"]["key_path"].value_or("");
     config.server.port = config_file["server"]["port"].value_or(0);
     config.server.threads_max = config_file["server"]["threads_max"].value_or(0);
+    config.init_timeout = config_file["server"]["port"].value_or(0);
+    config.init_repeat_period = config_file["server"]["threads_max"].value_or(0);
 
     auto standby_cert_path =config_file["standby"]["cert_path"].value<std::string>();
     auto standby_key_path =config_file["standby"]["key_path"].value<std::string>();

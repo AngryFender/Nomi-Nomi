@@ -46,9 +46,6 @@ void Connection::open()
                 return;
             }
         }
-
-        logi("recieved size:{}", size);
-        logi("recieved:{}",self->_internal_array.data());
         self->_receive_callback(std::string_view(self->_internal_array.data(), size));
         self->open();
 

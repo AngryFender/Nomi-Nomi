@@ -27,6 +27,8 @@ struct Config
     std::string alias{};
     MachineInfo server;
     std::optional<MachineInfo> standby;
+    int init_timeout;
+    int init_repeat_period;
 };
 
 struct CLIArgs
