@@ -1,14 +1,18 @@
 [general]
 alias = "System A"
 type = 1
+init_repeat_period = 5
+init_timeout = 25
+
 [server]
 cert_path = "../../ssl/server.crt"
 key_path = "../../ssl/server.key"
 port = 4500
 threads_max = 2
+
 [standby]
 cert_path = "../../ssl/standby.crt"
 key_path = "../../ssl/standby.key"
-address = "127.0.0.1"
+address = "0.0.0.0"
 port = 4501
 threads_max = 2

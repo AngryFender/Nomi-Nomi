@@ -42,8 +42,8 @@ std::optional<Config> read_config(std::string_view config_path)
     config.server.key_path = config_file["server"]["key_path"].value_or("");
     config.server.port = config_file["server"]["port"].value_or(0);
     config.server.threads_max = config_file["server"]["threads_max"].value_or(0);
-    config.init_timeout = config_file["server"]["port"].value_or(0);
-    config.init_repeat_period = config_file["server"]["threads_max"].value_or(0);
+    config.init_timeout = config_file["general"]["init_timeout"].value_or(0);
+    config.init_repeat_period = config_file["genera"]["init_repeat_period"].value_or(0);
 
     auto standby_cert_path =config_file["standby"]["cert_path"].value<std::string>();
     auto standby_key_path =config_file["standby"]["key_path"].value<std::string>();
@@ -109,10 +109,10 @@ int main(int argc, char* argv[])
 
     // auto active_node = std::make_unique<SSLConnection>(context_server,ctx_server);
     auto active_node = std::make_unique<Connection>(context_server);
-    const auto repeat_timer = RepeatTimer::create(context_server, std::chrono::seconds(5));
-    auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(40));
+    const auto repeat_timer = RepeatTimer::create(context_server, std::chrono::seconds(config->init_repeat_period));
+    auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(config->init_timeout));
 
-    const tcp::endpoint endpoint(boost::asio::ip::address::from_string("0.0.0.0"), 3000);
+    const tcp::endpoint endpoint(boost::asio::ip::address::from_string(config->standby->address), config->standby->port);
     InitConnector connector(std::move(active_node), endpoint, std::move(active_connect_timeout), repeat_timer);
 
 
