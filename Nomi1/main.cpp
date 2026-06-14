@@ -15,6 +15,7 @@
 #include "../src/connection.h"
 #include "../src/timer.h"
 #include "../src/utility/config.h"
+#include <glaze/toml.hpp>
 
 constexpr int SERVER1_LISTENING_PORT = 4500;
 constexpr int SERVER2_LISTENING_PORT = 4501;
@@ -23,46 +24,15 @@ constexpr int NODE1_PORT = 3500;
 constexpr int NODE2_PORT = 3501;
 constexpr int NODE_THREAD_MAX = 2;
 
-std::optional<Config> read_config(std::string_view config_path)
+std::optional<Config> read_config(const std::string_view path)
 {
-    toml::table config_file;
-    try
+    Config config1;
+    if(auto error = glz::read_file_toml(config1, path, std::string()))
     {
-        config_file = toml::parse_file(config_path);
-    }
-    catch (const toml::parse_error& e)
-    {
-        logi("Config file parsing error: {}", e.what());
+        logi("Config file parsing error: {}", error.custom_error_message);
         return std::nullopt;
     }
-
-    Config config;
-    config.type = config_file["general"]["type"].value_or(1);
-    config.server.cert_path = config_file["server"]["cert_path"].value_or("");
-    config.server.key_path = config_file["server"]["key_path"].value_or("");
-    config.server.port = config_file["server"]["port"].value_or(0);
-    config.server.threads_max = config_file["server"]["threads_max"].value_or(0);
-    config.init_timeout = config_file["general"]["init_timeout"].value_or(0);
-    config.init_repeat_period = config_file["genera"]["init_repeat_period"].value_or(0);
-
-    auto standby_cert_path =config_file["standby"]["cert_path"].value<std::string>();
-    auto standby_key_path =config_file["standby"]["key_path"].value<std::string>();
-    auto standby_address = config_file["standby"]["address"].value<std::string>();
-    auto standby_port = config_file["standby"]["port"].value<int>();
-    auto standby_threads_max = config_file["standby"]["thread_max"].value<int>();
-
-    if (standby_cert_path.has_value() && standby_key_path.has_value() && standby_address.has_value() && standby_port.
-        has_value() && standby_threads_max.has_value())
-    {
-        config.standby = MachineInfo{
-            standby_cert_path.value(),
-            standby_key_path.value(),
-            standby_address.value(),
-            standby_port.value(),
-            standby_threads_max.has_value()
-        };
-    }
-    return config;
+    return config1;
 }
 
 boost::asio::ssl::context create_ssl_context(const std::string& cert_path, const std::string& key_path)
@@ -109,8 +79,8 @@ int main(int argc, char* argv[])
 
     // auto active_node = std::make_unique<SSLConnection>(context_server,ctx_server);
     auto active_node = std::make_unique<Connection>(context_server);
-    const auto repeat_timer = RepeatTimer::create(context_server, std::chrono::seconds(config->init_repeat_period));
-    auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(config->init_timeout));
+    const auto repeat_timer = RepeatTimer::create(context_server, std::chrono::seconds(config->general.init_repeat_period));
+    auto active_connect_timeout = std::make_unique<Timer>(context_server, std::chrono::seconds(config->general.init_timeout));
 
     const tcp::endpoint endpoint(boost::asio::ip::address::from_string(config->standby->address), config->standby->port);
     InitConnector connector(std::move(active_node), endpoint, std::move(active_connect_timeout), repeat_timer);

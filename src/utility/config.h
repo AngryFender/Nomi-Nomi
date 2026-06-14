@@ -12,6 +12,14 @@ struct ClientConfig
     std::optional<int> standby_port{};
 };
 
+struct General
+{
+    int type{1};
+    std::string alias{};
+    int init_timeout;
+    int init_repeat_period;
+};
+
 struct MachineInfo
 {
     std::string cert_path;
@@ -23,12 +31,9 @@ struct MachineInfo
 
 struct Config
 {
-    int type{1};
-    std::string alias{};
+    General general;
     MachineInfo server;
     std::optional<MachineInfo> standby;
-    int init_timeout;
-    int init_repeat_period;
 };
 
 struct CLIArgs

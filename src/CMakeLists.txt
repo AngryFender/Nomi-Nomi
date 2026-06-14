@@ -71,12 +71,12 @@ FetchContent_MakeAvailable(fmtlog)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 FetchContent_Declare(
-        tomlplusplus
-        GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-        GIT_TAG        v3.4.0
+        glaze
+        GIT_REPOSITORY https://github.com/stephenberry/glaze.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
 )
-FetchContent_MakeAvailable(tomlplusplus)
-
+FetchContent_MakeAvailable(glaze)
 
 # Add generated sources to the target
 target_sources(${PROJECT_NAME} PRIVATE
@@ -97,6 +97,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     CapnProto::kj
     fmt::fmt
     CLI11::CLI11
-    tomlplusplus::tomlplusplus
     fmtlog-static
+    glaze::glaze
 )
