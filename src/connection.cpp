@@ -27,8 +27,10 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 
 void Connection::open()
 {
-    async_read(_socket, boost::asio::buffer(_internal_array),
-        [self = shared_from_this()](const boost::system::error_code& err, std::size_t size)
+    async_read(
+        _socket,
+        boost::asio::buffer(_internal_array.data() + _write_index, _internal_array.size() - _write_index),
+        [self = shared_from_this()](const boost::system::error_code& err, const std::size_t size)
     {
         if(err)
         {
@@ -46,6 +48,13 @@ void Connection::open()
                 return;
             }
         }
+        //first get the message length
+        self->_message_size = self->_internal_array[self->_read_index];
+
+        //since any number of bytes could arrive here
+        //process the received bytes of data
+        //TODO process 
+
         self->_receive_callback(std::string_view(self->_internal_array.data(), size));
         self->open();
 

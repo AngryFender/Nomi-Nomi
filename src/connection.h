@@ -33,7 +33,10 @@ private:
     const uint8_t _buffer_size{64};
     tcp::socket _socket;
     bool _write_in_progress;
-    std::array<char, 4> _internal_array;
+    std::array<char, 4096> _internal_array;
+    size_t _read_index = 0;
+    size_t _write_index = 0;
+    size_t _message_size = 0;
     boost::circular_buffer<char> _internal_buffer;
     std::vector<char> _packet_data;
     std::vector<char> _temp_data;
