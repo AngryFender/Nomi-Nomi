@@ -48,14 +48,16 @@ void Connection::open()
                 return;
             }
         }
-        //first get the message length
-        self->_message_size = self->_internal_array[self->_read_index];
+        //accumulate all the received bytes sizes
+        self->_write_index += size;
 
-        //since any number of bytes could arrive here
-        //process the received bytes of data
-        //TODO process 
+        //check if all the bytes arrived
+        if(self->_write_index >= self->_internal_array[self->_read_index])
+        {
+            self->_receive_callback(std::string_view(self->_internal_array.data() + self->_read_index, size));
+        }
+        //TODO reset the buffer
 
-        self->_receive_callback(std::string_view(self->_internal_array.data(), size));
         self->open();
 
         // get the message length and create message buffer of the same length
