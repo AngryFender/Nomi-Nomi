@@ -52,10 +52,21 @@ void Connection::open()
         self->_write_index += size;
 
         //check if all the bytes arrived
-        if(self->_write_index >= self->_internal_array[self->_read_index])
+        self->_message_size = self->_internal_array[self->_read_index];
+        if(self->_write_index-self->_read_index >= self->_message_size)
         {
-            self->_receive_callback(std::string_view(self->_internal_array.data() + self->_read_index, size));
+            self->_receive_callback(std::string_view(self->_internal_array.data() + self->_read_index, self->_message_size));
+            self->_read_index = self->_write_index;
         }
+
+        //check for overflow
+        if(self->_message_size + self->_write_index >= self->_internal_array.size())
+        {
+            std::memcpy(self->_internal_array.data(), self->_internal_array.data() + self->_read_index, self->_message_size);
+            self->_read_index = 0;
+            self->_write_index = self->_message_size;
+        }
+
         //TODO reset the buffer
 
         self->open();
