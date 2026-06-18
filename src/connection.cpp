@@ -27,8 +27,7 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 
 void Connection::open()
 {
-    async_read(
-        _socket,
+    _socket.async_read_some(
         boost::asio::buffer(_internal_array.data() + _write_index, _internal_array.size() - _write_index),
         [self = shared_from_this()](const boost::system::error_code& err, const std::size_t size)
     {
@@ -40,6 +39,8 @@ void Connection::open()
             case boost::asio::error::not_connected:
                 logd("Not Connected");
                 break;
+            case boost::asio::error::eof:
+            case boost::asio::error:::
             case boost::asio::error::operation_aborted:
                 logd("Connection closed");
                 return;
@@ -48,26 +49,32 @@ void Connection::open()
                 return;
             }
         }
+
+        if (size == 0)
+        {
+            self->open();
+        }
+
         //accumulate all the received bytes sizes
         self->_write_index += size;
 
         //check if all the bytes arrived
         self->_message_size = self->_internal_array[self->_read_index];
-        if(self->_write_index-self->_read_index >= self->_message_size)
+        while(self->_write_index - self->_read_index >= self->_message_size)
         {
-            self->_receive_callback(std::string_view(self->_internal_array.data() + self->_read_index, self->_message_size));
-            self->_read_index = self->_write_index;
+            self->_receive_callback(std::string_view(self->_internal_array.data() + self->_read_index,
+                                                     self->_message_size));
+            self->_read_index += self->_message_size;
         }
 
         //check for overflow
         if(self->_message_size + self->_write_index >= self->_internal_array.size())
         {
-            std::memcpy(self->_internal_array.data(), self->_internal_array.data() + self->_read_index, self->_message_size);
+            std::memmove(self->_internal_array.data(), self->_internal_array.data() + self->_read_index,
+                         self->_read_index - self->_write_index);
             self->_read_index = 0;
             self->_write_index = self->_message_size;
         }
-
-        //TODO reset the buffer
 
         self->open();
 
