@@ -6,11 +6,11 @@
 
 class Connection final : public IConnection, public std::enable_shared_from_this<Connection> {
 public:
-    explicit Connection(tcp::socket&& socket): _socket(std::move(socket)), _write_in_progress(false), _internal_buffer(_buffer_size)
+    explicit Connection(tcp::socket&& socket): _socket(std::move(socket)), _write_in_progress(false)
     {
     }
 
-    explicit Connection(boost::asio::io_context& context): _socket(context),_write_in_progress(false), _internal_buffer(_buffer_size)
+    explicit Connection(boost::asio::io_context& context): _socket(context),_write_in_progress(false)
     {
     }
 
@@ -37,14 +37,13 @@ private:
     size_t _read_index = 0;
     size_t _write_index = 0;
     size_t _message_size = 0;
-    boost::circular_buffer<char> _internal_buffer;
     std::vector<char> _packet_data;
     std::vector<char> _temp_data;
     std::queue<std::vector<char>> _outbounds;
     std::function <void(const boost::system::error_code&)> _send_callback;
     std::function <void(std::string_view)> _receive_callback;
-
     void start_async_send();
+
 };
 
 

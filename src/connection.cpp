@@ -27,70 +27,69 @@ void Connection::set_send_callback(std::function<void(const boost::system::error
 
 void Connection::open()
 {
-    _socket.async_read_some(
-        boost::asio::buffer(_internal_array.data() + _write_index, _internal_array.size() - _write_index),
-        [self = shared_from_this()](const boost::system::error_code& err, const std::size_t size)
+    //check if the buffer is full
+    const size_t available_space = _internal_array.size() - _write_index;
+    if(available_space == 0)
     {
-        if(err)
+        //TODO
+    }
+
+    _socket.async_read_some(
+        boost::asio::buffer(_internal_array.data() + _write_index, available_space),
+        [self = shared_from_this()](const boost::system::error_code& err, const std::size_t size)
         {
-            //TODO error handling
-            switch (err.value())
+            if (err)
             {
-            case boost::asio::error::not_connected:
-                logd("Not Connected");
-                break;
-            case boost::asio::error::eof:
-            case boost::asio::error:::
-            case boost::asio::error::operation_aborted:
-                logd("Connection closed");
-                return;
-            default:
-                loge("Error when receiving packets: {}", err.message());
-                return;
+                //TODO error handling
+                switch (err.value())
+                {
+                case boost::asio::error::not_connected:
+                    logd("Not Connected");
+                    break;
+                case boost::asio::error::eof:
+                case boost::asio::error::operation_aborted:
+                    logd("Connection closed");
+                    return;
+                default:
+                    loge("Error when receiving packets: {}", err.message());
+                    return;
+                }
             }
-        }
 
-        if (size == 0)
-        {
+            //accumulate all the received bytes sizes
+            self->_write_index += size;
+
+            //check if all the bytes arrived
+            self->_message_size = static_cast<unsigned>(self->_internal_array[self->_read_index]);
+            while (self->_write_index - self->_read_index >= self->_message_size)
+            {
+                self->_receive_callback(
+                    std::string_view(self->_internal_array.data() + self->_read_index,
+                                     self->_message_size)
+                );
+                self->_read_index += self->_message_size;
+
+                if(self->_read_index < self->_write_index)
+                {
+                    self->_message_size = static_cast<unsigned>(self->_internal_array[self->_read_index]);
+                }else
+                {
+                    break;
+                }
+            }
+
+            //check for overflow
+            if (self->_message_size + self->_read_index >= self->_internal_array.size())
+            {
+                std::memmove(self->_internal_array.data(),
+                             self->_internal_array.data() + self->_read_index,
+                             self->_write_index - self->_read_index);
+                self->_write_index = self->_write_index - self->_read_index;
+                self->_read_index = 0;
+            }
+
             self->open();
-        }
-
-        //accumulate all the received bytes sizes
-        self->_write_index += size;
-
-        //check if all the bytes arrived
-        self->_message_size = self->_internal_array[self->_read_index];
-        while(self->_write_index - self->_read_index >= self->_message_size)
-        {
-            self->_receive_callback(std::string_view(self->_internal_array.data() + self->_read_index,
-                                                     self->_message_size));
-            self->_read_index += self->_message_size;
-        }
-
-        //check for overflow
-        if(self->_message_size + self->_write_index >= self->_internal_array.size())
-        {
-            std::memmove(self->_internal_array.data(), self->_internal_array.data() + self->_read_index,
-                         self->_read_index - self->_write_index);
-            self->_read_index = 0;
-            self->_write_index = self->_message_size;
-        }
-
-        self->open();
-
-        // get the message length and create message buffer of the same length
-        // const int8_t message_length = self->_internal_buffer.front();
-        // self->_internal_buffer.pop_front();
-        //
-        // // read until the message buffer is filled
-        // async_read(self->_socket, boost::asio::buffer(&self->_internal_buffer.front(), sizeof(char)),
-        // [self, message_length](const boost::system::error_code& code, std::size_t size)
-        // {
-        //     self->_receive_callback(std::string_view(&self->_internal_buffer.front(), message_length));
-        //     self->_internal_buffer.clear();
-        //     self->open();
-        // });
-    });
+        });
 }
 
 void Connection::async_send(const std::vector<char>& packet)
