@@ -59,21 +59,23 @@ void Connection::open()
             //accumulate all the received bytes sizes
             self->_write_index += size;
 
-            //check if all the bytes arrived
-            self->_message_size = static_cast<unsigned>(self->_internal_array[self->_read_index]);
-            while (self->_write_index - self->_read_index >= self->_message_size)
+            //check if atleast one byte is recieved
+            while (self->_write_index - self->_read_index >= 1)
             {
-                self->_receive_callback(
-                    std::string_view(self->_internal_array.data() + self->_read_index,
-                                     self->_message_size)
-                );
-                self->_read_index += self->_message_size;
+                //get the size of the message
+                self->_message_size = static_cast<unsigned>(self->_internal_array[self->_read_index]);
 
-                if(self->_read_index < self->_write_index)
+                //process any message that fits inside the two indexes
+                if (self->_write_index - self->_read_index >= self->_message_size)
                 {
-                    self->_message_size = static_cast<unsigned>(self->_internal_array[self->_read_index]);
-                }else
+                    self->_receive_callback(
+                        std::string_view(self->_internal_array.data() + self->_read_index, self->_message_size));
+
+                    self->_read_index = self->_message_size;
+                }
+                else
                 {
+                    //not enough bytes for full message
                     break;
                 }
             }
@@ -87,9 +89,9 @@ void Connection::open()
                 self->_write_index = self->_write_index - self->_read_index;
                 self->_read_index = 0;
             }
-
             self->open();
-        });
+        }
+    );
 }
 
 void Connection::async_send(const std::vector<char>& packet)
