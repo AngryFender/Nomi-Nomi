@@ -33,6 +33,7 @@ target_sources(shared_core PUBLIC
         timer.h
         repeattimer.cpp
         repeattimer.h
+        idivider.h
 )
 find_package(Boost 1.74.0 REQUIRED)
 find_package(OpenSSL REQUIRED)
